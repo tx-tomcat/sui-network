@@ -2,5 +2,6 @@
 // Copyright (c) The Move Contributors
 // SPDX-License-Identifier: Apache-2.0
 
+pub mod combinable_bool_conditions;
 pub mod constant_naming;
 pub mod shift_overflow;

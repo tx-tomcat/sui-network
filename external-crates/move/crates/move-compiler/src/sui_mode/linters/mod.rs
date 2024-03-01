@@ -69,6 +69,7 @@ pub const COIN_FIELD_FILTER_NAME: &str = "coin_field";
 pub const FREEZE_WRAPPED_FILTER_NAME: &str = "freeze_wrapped";
 pub const COLLECTION_EQUALITY_FILTER_NAME: &str = "collection_equality";
 pub const CONSTANT_NAMING_FILTER_NAME: &str = "constant_naming";
+pub const COMBINABLE_BOOL_FILTER_NAME: &str = "combinable_bool";
 pub const SHILF_OVERFLOW_NAME: &str = "shift_overflow";
 pub const INVALID_LOC: Loc = Loc::invalid();
 
@@ -81,6 +82,7 @@ pub enum LinterDiagCategory {
     CollectionEquality,
     ConstantNaming,
     ShiftOperationOverflow,
+    CombinableBool,
 }
 
 /// A default code for each linter category (as long as only one code per category is used, no other
@@ -148,6 +150,12 @@ pub fn custom_filters() -> Vec<WarningFilter> {
             LINTER_DEFAULT_DIAG_CODE,
             Some(SHILF_OVERFLOW_NAME),
         ),
+        WarningFilter::code(
+            Some(LINT_WARNING_PREFIX),
+            LinterDiagCategory::CombinableBool as u8,
+            LINTER_DEFAULT_DIAG_CODE,
+            Some(COMBINABLE_BOOL_FILTER_NAME),
+        ),
     ];
     filters
 }
@@ -171,6 +179,7 @@ pub fn custom_linter_visitors() -> Vec<Visitor> {
     vec![
         custom_rules::constant_naming::ConstantNamingVisitor.visitor(),
         custom_rules::shift_overflow::ShiftOperationOverflowVisitor.visitor(),
+        custom_rules::combinable_bool_conditions::CombinableBoolVisitor.visitor(),
     ]
 }
 
