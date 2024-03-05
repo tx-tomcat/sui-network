@@ -1,3 +1,6 @@
+//! Detects comparisons where a variable is compared to 'true' or 'false' using
+//! equality (==) or inequality (!=) operators and provides suggestions to simplify the comparisons.
+//! Examples: if (x == true) can be simplified to if (x), if (x == false) can be simplified to if (!x)
 use crate::{
     diag,
     diagnostics::{
