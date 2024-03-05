@@ -43,7 +43,6 @@ impl TypingVisitorConstructor for CombinableBoolVisitor {
 
 impl TypingVisitorContext for Context<'_> {
     fn visit_exp_custom(&mut self, exp: &mut T::Exp) -> bool {
-        eprintln!("Visiting exp {:?}", exp);
         if let UnannotatedExp_::BinopExp(e1, _op, _, e2) = &exp.exp.value {
             if let (
                 UnannotatedExp_::BinopExp(_, op1, _, _),

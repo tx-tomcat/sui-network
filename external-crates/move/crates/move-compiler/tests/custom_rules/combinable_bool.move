@@ -12,7 +12,7 @@ module 0x42::M {
         if (x != y || x > y) {}; // same as x > y
         if (x > y || x != y) {}; // same as x > y
         if (x > y || y != x) {}; // same as x > y
-
+        if (x > y && y == x) {}; // same as x >= y
         if (m == n || m < n) {}; // should be m <= n
 
         if (x <= y) {};
