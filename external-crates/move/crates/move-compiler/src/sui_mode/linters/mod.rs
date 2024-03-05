@@ -80,6 +80,7 @@ pub enum LinterDiagCategory {
     CoinField,
     FreezeWrapped,
     CollectionEquality,
+    //extended rules
     ConstantNaming,
     ShiftOperationOverflow,
     RedundantRefDeref,
