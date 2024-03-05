@@ -1,3 +1,6 @@
+//! The `CombinableBoolVisitor` detects and warns about boolean conditions in Move code that can be simplified.
+//! It identifies comparisons that are logically equivalent and suggests more concise alternatives.
+//! This rule focuses on simplifying expressions involving `==`, `<`, `>`, and `!=` operators to improve code readability.
 use move_ir_types::location::Loc;
 
 use crate::sui_mode::linters::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
