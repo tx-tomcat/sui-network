@@ -15,8 +15,8 @@ BUILDING A
 The following changes will be made.
 ============================================================
 
---- ./sources/mod0.move
-+++ ./sources/mod0.move
+--- sources/mod0.move
++++ sources/mod0.move
 @@ -2,1 +2,1 @@
 -    struct S { f: u64 }
 +    public struct S { f: u64 }
@@ -32,8 +32,8 @@ The following changes will be made.
 @@ -12,1 +12,1 @@
 -        let S { f: fin } = s;
 +        let S { f: mut fin } = s;
---- ./sources/mod1.move
-+++ ./sources/mod1.move
+--- sources/mod1.move
++++ sources/mod1.move
 @@ -3,1 +3,1 @@
 -    public fun t(x: u64, yip: u64, s: S): u64  {
 +    public fun t(mut x: u64, mut yip: u64, s: S): u64  {
@@ -43,8 +43,8 @@ The following changes will be made.
 @@ -5,1 +5,1 @@
 -        let S { f: fin } = s;
 +        let S { f: mut fin } = s;
---- ./sources/mod2.move
-+++ ./sources/mod2.move
+--- sources/mod2.move
++++ sources/mod2.move
 @@ -3,1 +3,1 @@
 -    public fun t(x: u64, yip: u64, s: S): u64  {
 +    public fun t(mut x: u64, mut yip: u64, s: S): u64  {
@@ -57,8 +57,8 @@ The following changes will be made.
 @@ -15,1 +15,1 @@
 -        let x = 5; let y = 10;
 +        let mut x = 5; let mut y = 10;
---- ./sources/mod3_4.move
-+++ ./sources/mod3_4.move
+--- sources/mod3_4.move
++++ sources/mod3_4.move
 @@ -2,1 +2,1 @@
 -    struct S { f: u64 }
 +    public struct S { f: u64 }
@@ -83,14 +83,59 @@ The following changes will be made.
 @@ -24,1 +24,1 @@
 -        let S { f: fin } = s;
 +        let S { f: mut fin } = s;
+--- sources/mod5.move
++++ sources/mod5.move
+@@ -3,1 +3,1 @@
+-    struct UID { }
++    public struct UID { }
+@@ -4,1 +4,1 @@
+-    struct TxContext { }
++    public struct TxContext { }
+@@ -14,1 +14,1 @@
+-        let v: vector<UID> = empty();
++        let mut v: vector<UID> = empty();
+@@ -15,1 +15,1 @@
+-        let i = 0;
++        let mut i = 0;
+--- tests/test0.move
++++ tests/test0.move
+@@ -5,1 +5,1 @@
+-    struct R has store { }
++    public struct R has store { }
+@@ -6,1 +6,1 @@
+-    struct Droppable has drop {}
++    public struct Droppable has drop {}
+@@ -7,1 +7,1 @@
+-    struct NotDroppable {}
++    public struct NotDroppable {}
+@@ -85,1 +85,1 @@
+-        let i = 0;
++        let mut i = 0;
+@@ -444,1 +444,1 @@
+-        let i = 0;
++        let mut i = 0;
+@@ -456,1 +456,1 @@
+-        let i = 0;
++        let mut i = 0;
+@@ -471,1 +471,1 @@
+-    fun test_natives_with_type<T>(x1: T, x2: T): (T, T) {
++    fun test_natives_with_type<T>(mut x1: T, mut x2: T): (T, T) {
+@@ -546,1 +546,1 @@
+-        let i = 0;
++        let mut i = 0;
+@@ -560,1 +560,1 @@
+-        let i = 0;
++        let mut i = 0;
 
 
 ============================================================
 Apply changes? (Y/n) 
-Updating "./sources/mod0.move" . . .
-Updating "./sources/mod1.move" . . .
-Updating "./sources/mod2.move" . . .
-Updating "./sources/mod3_4.move" . . .
+Updating "sources/mod0.move" . . .
+Updating "sources/mod1.move" . . .
+Updating "sources/mod2.move" . . .
+Updating "sources/mod3_4.move" . . .
+Updating "sources/mod5.move" . . .
+Updating "tests/test0.move" . . .
 
 Changes complete
 Wrote patchfile out to: ./migration.patch
@@ -102,5 +147,8 @@ Files sources/mod0.move and migration_sources/mod0.move are identical
 Files sources/mod1.move and migration_sources/mod1.move are identical
 Files sources/mod2.move and migration_sources/mod2.move are identical
 Files sources/mod3_4.move and migration_sources/mod3_4.move are identical
+Files sources/mod5.move and migration_sources/mod5.move are identical
+External Command `diff -r -s tests migration_tests`:
+Files tests/test0.move and migration_tests/test0.move are identical
 External Command `diff -s Move.toml Move.toml.expected`:
 Files Move.toml and Move.toml.expected are identical

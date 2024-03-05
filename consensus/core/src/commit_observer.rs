@@ -6,6 +6,8 @@ use std::sync::Arc;
 use parking_lot::RwLock;
 use tokio::sync::mpsc::UnboundedSender;
 
+use crate::commit::CommitAPI;
+use crate::error::{ConsensusError, ConsensusResult};
 use crate::{
     block::{timestamp_utc_ms, BlockAPI, VerifiedBlock},
     commit::{load_committed_subdag_from_store, CommitIndex, CommittedSubDag},
@@ -26,8 +28,6 @@ use crate::{
 /// is sent to the consumer.
 /// - When CommitObserver is initialized a last processed commit index can be used
 /// to ensure any missing commits are re-sent.
-
-#[allow(unused)]
 pub(crate) struct CommitObserver {
     context: Arc<Context>,
     /// Component to deterministically collect subdags for committed leaders.
@@ -38,7 +38,6 @@ pub(crate) struct CommitObserver {
     store: Arc<dyn Store>,
 }
 
-#[allow(unused)]
 impl CommitObserver {
     pub(crate) fn new(
         context: Arc<Context>,
@@ -64,7 +63,7 @@ impl CommitObserver {
     pub(crate) fn handle_commit(
         &mut self,
         committed_leaders: Vec<VerifiedBlock>,
-    ) -> Vec<CommittedSubDag> {
+    ) -> ConsensusResult<Vec<CommittedSubDag>> {
         let committed_sub_dags = self.commit_interpreter.handle_commit(committed_leaders);
         let mut sent_sub_dags = vec![];
 
@@ -74,17 +73,19 @@ impl CommitObserver {
                 tracing::error!(
                     "Failed to send committed sub-dag, probably due to shutdown: {err:?}"
                 );
-                // TODO: revisit this to see if we should pass error/shutdown signal
-                // back to core.
-                break;
-            } else {
-                sent_sub_dags.push(committed_sub_dag);
+                return Err(ConsensusError::Shutdown);
             }
+            tracing::debug!(
+                "Sending to execution commit {} leader {}",
+                committed_sub_dag.commit_index,
+                committed_sub_dag.leader
+            );
+            sent_sub_dags.push(committed_sub_dag);
         }
 
         self.report_metrics(&sent_sub_dags);
-        tracing::debug!("Committed & sent {sent_sub_dags:#?}");
-        sent_sub_dags
+        tracing::trace!("Committed & sent {sent_sub_dags:#?}");
+        Ok(sent_sub_dags)
     }
 
     fn send_missing_commits(&mut self, last_processed_index: CommitIndex) {
@@ -94,7 +95,7 @@ impl CommitObserver {
             .expect("Reading the last commit should not fail");
 
         if let Some(last_commit) = last_commit {
-            let last_commit_index = last_commit.index;
+            let last_commit_index = last_commit.index();
 
             assert!(last_commit_index >= last_processed_index);
             if last_commit_index == last_processed_index {
@@ -111,7 +112,7 @@ impl CommitObserver {
         for commit in unsent_commits {
             // Resend all the committed subdags to the consensus output channel
             // for all the commits above the last processed index.
-            assert!(commit.index > last_processed_index);
+            assert!(commit.index() > last_processed_index);
             let committed_subdag = load_committed_subdag_from_store(self.store.as_ref(), commit);
 
             // Failures in sender.send() are assumed to be permanent
@@ -212,7 +213,7 @@ mod tests {
             1,
         );
 
-        let commits = observer.handle_commit(leaders.clone());
+        let commits = observer.handle_commit(leaders.clone()).unwrap();
 
         // Check commits are returned by CommitObserver::handle_commit is accurate
         let mut expected_stored_refs: Vec<BlockRef> = vec![];
@@ -239,7 +240,7 @@ mod tests {
                 expected_stored_refs.push(block.reference());
                 assert!(block.round() <= leaders[idx].round());
             }
-            assert_eq!(subdag.commit_index, idx as u64 + 1);
+            assert_eq!(subdag.commit_index, idx as CommitIndex + 1);
         }
 
         // Check commits sent over consensus output channel is accurate
@@ -257,7 +258,7 @@ mod tests {
 
         // Check commits have been persisted to storage
         let last_commit = mem_store.read_last_commit().unwrap().unwrap();
-        assert_eq!(last_commit.index, commits.last().unwrap().commit_index);
+        assert_eq!(last_commit.index(), commits.last().unwrap().commit_index);
         let all_stored_commits = mem_store.scan_commits(0).unwrap();
         assert_eq!(all_stored_commits.len(), leaders.len());
         let blocks_existence = mem_store.contains_blocks(&expected_stored_refs).unwrap();
@@ -301,13 +302,15 @@ mod tests {
         // Commit first batch of leaders (2) and "receive" the subdags as the
         // consumer of the consensus output channel.
         let expected_last_processed_index = 2;
-        let mut commits = observer.handle_commit(
-            leaders
-                .clone()
-                .into_iter()
-                .take(expected_last_processed_index)
-                .collect::<Vec<_>>(),
-        );
+        let mut commits = observer
+            .handle_commit(
+                leaders
+                    .clone()
+                    .into_iter()
+                    .take(expected_last_processed_index)
+                    .collect::<Vec<_>>(),
+            )
+            .unwrap();
 
         // Check commits sent over consensus output channel is accurate
         let mut processed_subdag_index = 0;
@@ -326,7 +329,7 @@ mod tests {
         // Check last stored commit is correct
         let last_commit = mem_store.read_last_commit().unwrap().unwrap();
         assert_eq!(
-            last_commit.index,
+            last_commit.index(),
             expected_last_processed_index as CommitIndex
         );
 
@@ -334,13 +337,15 @@ mod tests {
         // "processed" by consensus output channel. Simulating something happened on
         // the consumer side where the commits were not persisted.
         commits.append(
-            &mut observer.handle_commit(
-                leaders
-                    .clone()
-                    .into_iter()
-                    .skip(expected_last_processed_index)
-                    .collect::<Vec<_>>(),
-            ),
+            &mut observer
+                .handle_commit(
+                    leaders
+                        .clone()
+                        .into_iter()
+                        .skip(expected_last_processed_index)
+                        .collect::<Vec<_>>(),
+                )
+                .unwrap(),
         );
 
         let expected_last_sent_index = 3;
@@ -360,7 +365,7 @@ mod tests {
         // that was sent over the channel regardless of how the consumer handled
         // the commit on their end.
         let last_commit = mem_store.read_last_commit().unwrap().unwrap();
-        assert_eq!(last_commit.index, expected_last_sent_index as CommitIndex);
+        assert_eq!(last_commit.index(), expected_last_sent_index as CommitIndex);
 
         // Re-create commit observer starting from index 2 which represents the
         // last processed index from the consumer over consensus output channel
@@ -425,7 +430,7 @@ mod tests {
         // Commit all of the leaders and "receive" the subdags as the consumer of
         // the consensus output channel.
         let expected_last_processed_index = 3;
-        let commits = observer.handle_commit(leaders.clone());
+        let commits = observer.handle_commit(leaders.clone()).unwrap();
 
         // Check commits sent over consensus output channel is accurate
         let mut processed_subdag_index = 0;
@@ -444,7 +449,7 @@ mod tests {
         // Check last stored commit is correct
         let last_commit = mem_store.read_last_commit().unwrap().unwrap();
         assert_eq!(
-            last_commit.index,
+            last_commit.index(),
             expected_last_processed_index as CommitIndex
         );
 

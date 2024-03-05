@@ -210,7 +210,7 @@ impl<C: CheckpointServiceNotify + Send + Sync> ExecutionState for ConsensusHandl
             .await;
     }
 
-    async fn last_executed_sub_dag_index(&self) -> u64 {
+    fn last_executed_sub_dag_index(&self) -> u64 {
         self.last_consensus_stats.index.sub_dag_index
     }
 }
@@ -473,7 +473,7 @@ impl<C: CheckpointServiceNotify + Send + Sync> ConsensusHandler<C> {
 
         fail_point_if!("correlated-crash-after-consensus-commit-boundary", || {
             let key = [commit_sub_dag_index, self.epoch_store.epoch()];
-            if sui_simulator::random::deterministic_probabilty(&key, 0.01) {
+            if sui_simulator::random::deterministic_probability(&key, 0.01) {
                 sui_simulator::task::kill_current_node(None);
             }
         });
@@ -511,9 +511,7 @@ impl AsyncTransactionScheduler {
     ) {
         while let Some(transactions) = recv.recv().await {
             let _guard = monitored_scope("ConsensusHandler::enqueue");
-            transaction_manager
-                .enqueue(transactions, &epoch_store)
-                .expect("transaction_manager::enqueue should not fail");
+            transaction_manager.enqueue(transactions, &epoch_store);
         }
     }
 }

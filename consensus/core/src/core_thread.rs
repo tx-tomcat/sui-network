@@ -9,6 +9,7 @@ use thiserror::Error;
 use tokio::sync::{oneshot, oneshot::error::RecvError};
 use tracing::warn;
 
+use crate::error::{ConsensusError, ConsensusResult};
 use crate::{
     block::{BlockRef, Round, VerifiedBlock},
     context::Context,
@@ -20,11 +21,11 @@ const CORE_THREAD_COMMANDS_CHANNEL_SIZE: usize = 32;
 
 enum CoreThreadCommand {
     /// Add blocks to be processed and accepted
-    AddBlocks(Vec<VerifiedBlock>, oneshot::Sender<Vec<BlockRef>>),
+    AddBlocks(Vec<VerifiedBlock>, oneshot::Sender<BTreeSet<BlockRef>>),
     /// Called when a leader timeout occurs and a block should be produced
     ForceNewBlock(Round, oneshot::Sender<()>),
     /// Request missing blocks that need to be synced.
-    GetMissing(oneshot::Sender<Vec<BTreeSet<BlockRef>>>),
+    GetMissing(oneshot::Sender<BTreeSet<BlockRef>>),
 }
 
 #[derive(Error, Debug)]
@@ -37,21 +38,20 @@ pub enum CoreError {
 /// Also this allows the easier mocking during unit tests.
 #[async_trait]
 pub trait CoreThreadDispatcher: Sync + Send + 'static {
-    async fn add_blocks(&self, blocks: Vec<VerifiedBlock>) -> Result<Vec<BlockRef>, CoreError>;
+    async fn add_blocks(&self, blocks: Vec<VerifiedBlock>)
+        -> Result<BTreeSet<BlockRef>, CoreError>;
 
     async fn force_new_block(&self, round: Round) -> Result<(), CoreError>;
 
-    async fn get_missing_blocks(&self) -> Result<Vec<BTreeSet<BlockRef>>, CoreError>;
+    async fn get_missing_blocks(&self) -> Result<BTreeSet<BlockRef>, CoreError>;
 }
 
-#[allow(unused)]
 pub(crate) struct CoreThreadHandle {
     sender: metered_channel::Sender<CoreThreadCommand>,
     join_handle: thread::JoinHandle<()>,
 }
 
 impl CoreThreadHandle {
-    #[allow(unused)]
     pub fn stop(self) {
         // drop the sender, that will force all the other weak senders to not able to upgrade.
         drop(self.sender);
@@ -59,7 +59,6 @@ impl CoreThreadHandle {
     }
 }
 
-#[allow(unused)]
 struct CoreThread {
     core: Core,
     receiver: metered_channel::Receiver<CoreThreadCommand>,
@@ -67,7 +66,7 @@ struct CoreThread {
 }
 
 impl CoreThread {
-    pub fn run(mut self) {
+    pub fn run(mut self) -> ConsensusResult<()> {
         tracing::debug!("Started core thread");
 
         while let Some(command) = self.receiver.blocking_recv() {
@@ -75,19 +74,20 @@ impl CoreThread {
             self.context.metrics.node_metrics.core_lock_dequeued.inc();
             match command {
                 CoreThreadCommand::AddBlocks(blocks, sender) => {
-                    let missing_blocks = self.core.add_blocks(blocks);
+                    let missing_blocks = self.core.add_blocks(blocks)?;
                     sender.send(missing_blocks).ok();
                 }
                 CoreThreadCommand::ForceNewBlock(round, sender) => {
-                    self.core.force_new_block(round);
+                    self.core.force_new_block(round)?;
                     sender.send(()).ok();
                 }
                 CoreThreadCommand::GetMissing(sender) => {
-                    // TODO: implement the logic to fetch the missing blocks.
-                    sender.send(vec![]).ok();
+                    sender.send(self.core.get_missing_blocks()).ok();
                 }
             }
         }
+
+        Ok(())
     }
 }
 
@@ -111,7 +111,13 @@ impl ChannelCoreThreadDispatcher {
         };
         let join_handle = thread::Builder::new()
             .name("consensus-core".to_string())
-            .spawn(move || core_thread.run())
+            .spawn(move || {
+                if let Err(err) = core_thread.run() {
+                    if !matches!(err, ConsensusError::Shutdown) {
+                        panic!("Fatal error occurred: {err}");
+                    }
+                }
+            })
             .unwrap();
         // Explicitly using downgraded sender in order to allow sharing the CoreThreadDispatcher but
         // able to shutdown the CoreThread by dropping the original sender.
@@ -141,7 +147,10 @@ impl ChannelCoreThreadDispatcher {
 
 #[async_trait]
 impl CoreThreadDispatcher for ChannelCoreThreadDispatcher {
-    async fn add_blocks(&self, blocks: Vec<VerifiedBlock>) -> Result<Vec<BlockRef>, CoreError> {
+    async fn add_blocks(
+        &self,
+        blocks: Vec<VerifiedBlock>,
+    ) -> Result<BTreeSet<BlockRef>, CoreError> {
         let (sender, receiver) = oneshot::channel();
         self.send(CoreThreadCommand::AddBlocks(blocks, sender))
             .await;
@@ -155,7 +164,7 @@ impl CoreThreadDispatcher for ChannelCoreThreadDispatcher {
         receiver.await.map_err(Shutdown)
     }
 
-    async fn get_missing_blocks(&self) -> Result<Vec<BTreeSet<BlockRef>>, CoreError> {
+    async fn get_missing_blocks(&self) -> Result<BTreeSet<BlockRef>, CoreError> {
         let (sender, receiver) = oneshot::channel();
         self.send(CoreThreadCommand::GetMissing(sender)).await;
         receiver.await.map_err(Shutdown)
@@ -170,6 +179,7 @@ mod test {
     use super::*;
     use crate::{
         block_manager::BlockManager,
+        block_verifier::NoopBlockVerifier,
         commit_observer::CommitObserver,
         context::Context,
         core::CoreSignals,
@@ -185,11 +195,15 @@ mod test {
         let context = Arc::new(context);
         let store = Arc::new(MemStore::new());
         let dag_state = Arc::new(RwLock::new(DagState::new(context.clone(), store.clone())));
-        let block_manager = BlockManager::new(context.clone(), dag_state.clone());
+        let block_manager = BlockManager::new(
+            context.clone(),
+            dag_state.clone(),
+            Arc::new(NoopBlockVerifier),
+        );
         let (_transaction_client, tx_receiver) = TransactionClient::new(context.clone());
         let transaction_consumer = TransactionConsumer::new(tx_receiver, context.clone(), None);
-        let (signals, _signal_receivers) = CoreSignals::new();
-
+        let (signals, signal_receivers) = CoreSignals::new();
+        let _block_receiver = signal_receivers.block_broadcast_receiver();
         let (sender, _receiver) = unbounded_channel();
         let commit_observer = CommitObserver::new(
             context.clone(),

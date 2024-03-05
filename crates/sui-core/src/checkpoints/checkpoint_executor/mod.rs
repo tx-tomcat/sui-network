@@ -49,14 +49,13 @@ use tokio::{
 use tokio_stream::StreamExt;
 use tracing::{debug, error, info, instrument, trace, warn};
 
+use self::metrics::CheckpointExecutorMetrics;
 use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use crate::authority::AuthorityState;
 use crate::checkpoints::checkpoint_executor::data_ingestion_handler::store_checkpoint_locally;
 use crate::state_accumulator::StateAccumulator;
 use crate::transaction_manager::TransactionManager;
 use crate::{checkpoints::CheckpointStore, execution_cache::ExecutionCacheRead};
-
-use self::metrics::CheckpointExecutorMetrics;
 
 mod data_ingestion_handler;
 mod metrics;
@@ -235,7 +234,7 @@ impl CheckpointExecutor {
                      // we want to be inclusive of checkpoints in RunWithRange::Checkpoint type
                     if run_with_range.map_or(false, |rwr| rwr.matches_checkpoint(checkpoint.sequence_number)) {
                         info!(
-                            "RunWithRange condition satisifed after checkpoint sequence number {:?}",
+                            "RunWithRange condition satisfied after checkpoint sequence number {:?}",
                             checkpoint.sequence_number
                         );
                         return StopReason::RunWithRangeCondition;
@@ -459,12 +458,10 @@ impl CheckpointExecutor {
                 .expect("Acquiring shared locks for change_epoch tx cannot fail");
         }
 
-        self.tx_manager
-            .enqueue_with_expected_effects_digest(
-                vec![(change_epoch_tx.clone(), execution_digests.effects)],
-                &epoch_store,
-            )
-            .expect("Enqueueing change_epoch tx cannot fail");
+        self.tx_manager.enqueue_with_expected_effects_digest(
+            vec![(change_epoch_tx.clone(), execution_digests.effects)],
+            &epoch_store,
+        );
         handle_execution_effects(
             &self.state,
             vec![execution_digests],
@@ -551,6 +548,7 @@ impl CheckpointExecutor {
                         effects,
                         self.config.data_ingestion_dir.clone(),
                     )
+                    .await
                     .expect("Finalizing checkpoint cannot fail");
 
                     self.accumulator
@@ -749,6 +747,7 @@ async fn handle_execution_effects(
                         effects,
                         data_ingestion_dir,
                     )
+                    .await
                     .expect("Finalizing checkpoint cannot fail");
                 }
                 return;
@@ -1049,8 +1048,7 @@ async fn execute_transactions(
     }
 
     let exec_start = Instant::now();
-    transaction_manager
-        .enqueue_with_expected_effects_digest(executable_txns.clone(), &epoch_store)?;
+    transaction_manager.enqueue_with_expected_effects_digest(executable_txns.clone(), &epoch_store);
 
     handle_execution_effects(
         state,
@@ -1079,7 +1077,7 @@ async fn execute_transactions(
 }
 
 #[instrument(level = "debug", skip_all)]
-fn finalize_checkpoint(
+async fn finalize_checkpoint(
     state: &AuthorityState,
     cache_reader: &dyn ExecutionCacheRead,
     checkpoint_store: Arc<CheckpointStore>,
@@ -1090,6 +1088,12 @@ fn finalize_checkpoint(
     effects: Vec<TransactionEffects>,
     data_ingestion_dir: Option<PathBuf>,
 ) -> SuiResult {
+    let cache_commit = state.get_cache_commit();
+    for digest in tx_digests {
+        cache_commit
+            .commit_transaction_outputs(epoch_store.epoch(), digest)
+            .await?;
+    }
     if epoch_store.per_epoch_finalized_txns_enabled() {
         epoch_store.insert_finalized_transactions(tx_digests, checkpoint.sequence_number)?;
     }

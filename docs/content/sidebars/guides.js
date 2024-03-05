@@ -10,6 +10,7 @@ const guides = [
 	{
 		type: 'category',
 		label: 'Developer Guides',
+                collapsed: false,
 		link: {
 			type: 'doc',
 			id: 'guides/developer',
@@ -18,6 +19,7 @@ const guides = [
 			{
 				type: 'category',
 				label: 'Getting Started',
+                                collapsed: false,
 				link: {
 					type: 'doc',
 					id: 'guides/developer/getting-started',
@@ -118,7 +120,7 @@ const guides = [
 					},*/
 					'guides/developer/advanced/asset-tokenization',
 					'guides/developer/advanced/graphql-migration',
-					//'guides/developer/advanced/custom-indexers',
+					'guides/developer/advanced/custom-indexer',
 				],
 			},
 			{
@@ -131,7 +133,19 @@ const guides = [
 				items: [
 					'guides/developer/app-examples/e2e-counter',
 					'guides/developer/app-examples/auction',
-					'guides/developer/app-examples/escrow',
+					{
+						type: 'category',
+						label: 'Trading',
+						link: {
+							type: 'doc',
+							id: 'guides/developer/app-examples/trading',
+						},
+						items: [
+							'guides/developer/app-examples/trading/backend',
+							'guides/developer/app-examples/trading/indexer-api',
+							'guides/developer/app-examples/trading/frontend',
+						],
+					},
 					'guides/developer/app-examples/trusted-swap',
 					'guides/developer/app-examples/tic-tac-toe',
 					'guides/developer/app-examples/recaptcha',
