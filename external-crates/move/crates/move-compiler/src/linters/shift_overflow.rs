@@ -8,7 +8,7 @@ use crate::{
         WarningFilters,
     },
     expansion::ast::Value_,
-    naming::ast::{BuiltinTypeName_, TypeName_, Type_},
+    naming::ast::{BuiltinTypeName_, Type_},
     parser::ast::BinOp_,
     shared::{program_info::TypingProgramInfo, CompilationEnv},
     typing::{
@@ -17,7 +17,6 @@ use crate::{
     },
 };
 use move_ir_types::location::Loc;
-use std::str::FromStr;
 
 use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
 
