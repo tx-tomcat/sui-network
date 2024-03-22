@@ -9,13 +9,14 @@ use crate::{
         WarningFilters,
     },
     shared::{program_info::TypingProgramInfo, CompilationEnv},
-    sui_mode::linters::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX},
     typing::{
         ast::{self as T, UnannotatedExp_},
         visitor::{TypingVisitorConstructor, TypingVisitorContext},
     },
 };
 use move_ir_types::location::Loc;
+
+use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const REDUNDANT_DEREF_REF_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
@@ -25,13 +26,13 @@ const REDUNDANT_DEREF_REF_DIAG: DiagnosticInfo = custom(
     "",
 );
 
-pub struct RedundantDerefRefVisitor;
+pub struct RedundantDerefRef;
 
 pub struct Context<'a> {
     env: &'a mut CompilationEnv,
 }
 
-impl TypingVisitorConstructor for RedundantDerefRefVisitor {
+impl TypingVisitorConstructor for RedundantDerefRef {
     type Context<'a> = Context<'a>;
 
     fn context<'a>(
