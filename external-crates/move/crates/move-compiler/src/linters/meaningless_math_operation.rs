@@ -9,13 +9,14 @@ use crate::{
     expansion::ast::Value_,
     parser::ast::BinOp_,
     shared::{program_info::TypingProgramInfo, CompilationEnv},
-    sui_mode::linters::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX},
     typing::{
         ast::{self as T, Exp, UnannotatedExp_},
         visitor::{TypingVisitorConstructor, TypingVisitorContext},
     },
 };
 use move_ir_types::location::Loc;
+
+use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const MEANINGLESS_MATH_OP_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
@@ -25,13 +26,13 @@ const MEANINGLESS_MATH_OP_DIAG: DiagnosticInfo = custom(
     "Detected a meaningless math operation that has no effect.",
 );
 
-pub struct MeaninglessMathOperationVisitor;
+pub struct MeaninglessMathOperation;
 
 pub struct Context<'a> {
     env: &'a mut CompilationEnv,
 }
 
-impl TypingVisitorConstructor for MeaninglessMathOperationVisitor {
+impl TypingVisitorConstructor for MeaninglessMathOperation {
     type Context<'a> = Context<'a>;
 
     fn context<'a>(
