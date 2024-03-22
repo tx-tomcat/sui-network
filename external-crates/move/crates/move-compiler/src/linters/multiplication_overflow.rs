@@ -10,7 +10,6 @@ use crate::{
     naming::ast::{BuiltinTypeName_, TypeName_, Type_},
     parser::ast::BinOp_,
     shared::{program_info::TypingProgramInfo, CompilationEnv},
-    sui_mode::linters::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX},
     typing::{
         ast::{self as T, UnannotatedExp_},
         visitor::{TypingVisitorConstructor, TypingVisitorContext},
@@ -18,6 +17,8 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 use std::str::FromStr;
+
+use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const SHIFT_OPERATION_OVERFLOW_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
@@ -27,13 +28,13 @@ const SHIFT_OPERATION_OVERFLOW_DIAG: DiagnosticInfo = custom(
     "Potential overflow detected in multiplication operation",
 );
 
-pub struct MultiplicationOverflowVisitor;
+pub struct MultiplicationOverflow;
 
 pub struct Context<'a> {
     env: &'a mut CompilationEnv,
 }
 
-impl TypingVisitorConstructor for MultiplicationOverflowVisitor {
+impl TypingVisitorConstructor for MultiplicationOverflow {
     type Context<'a> = Context<'a>;
 
     fn context<'a>(

@@ -89,7 +89,7 @@ pub enum LinterDiagCategory {
 pub const LINTER_DEFAULT_DIAG_CODE: u8 = 1;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
-    let mut filters = vec![
+    let filters = vec![
         WarningFilter::All(Some(LINT_WARNING_PREFIX)),
         WarningFilter::code(
             Some(LINT_WARNING_PREFIX),
