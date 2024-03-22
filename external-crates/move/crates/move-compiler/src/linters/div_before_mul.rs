@@ -8,13 +8,14 @@ use crate::{
     },
     parser::ast::BinOp_,
     shared::{program_info::TypingProgramInfo, CompilationEnv},
-    sui_mode::linters::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX},
     typing::{
         ast::{self as T, UnannotatedExp_},
         visitor::{TypingVisitorConstructor, TypingVisitorContext},
     },
 };
 use move_ir_types::location::Loc;
+
+use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const DIV_BEFORE_MUL_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
@@ -24,13 +25,13 @@ const DIV_BEFORE_MUL_DIAG: DiagnosticInfo = custom(
     "Division before multiplication may lead to amplified rounding errors. Consider changing the order of operations.",
 );
 
-pub struct DivisionBeforeMultiplicationVisitor;
+pub struct DivisionBeforeMultiplication;
 
 pub struct Context<'a> {
     env: &'a mut CompilationEnv,
 }
 
-impl TypingVisitorConstructor for DivisionBeforeMultiplicationVisitor {
+impl TypingVisitorConstructor for DivisionBeforeMultiplication {
     type Context<'a> = Context<'a>;
 
     fn context<'a>(
