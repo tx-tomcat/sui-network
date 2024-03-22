@@ -7,6 +7,7 @@ use crate::{
     diagnostics::codes::WarningFilter,
     expansion::ast as E,
     hlir::ast::{BaseType_, SingleType, SingleType_},
+    linters::{LintLevel, ALLOW_ATTR_CATEGORY, LINT_WARNING_PREFIX},
     naming::ast as N,
     typing::visitor::TypingVisitor,
 };
@@ -14,9 +15,9 @@ use move_ir_types::location::Loc;
 use move_symbol_pool::Symbol;
 pub mod coin_field;
 pub mod collection_equality;
-mod custom_rules;
 pub mod custom_state_change;
 pub mod freeze_wrapped;
+pub mod public_random;
 pub mod self_transfer;
 pub mod share_owned;
 pub const SUI_PKG_NAME: &str = "sui";
@@ -59,18 +60,18 @@ pub const VEC_MAP_STRUCT_NAME: &str = "VecMap";
 pub const VEC_SET_MOD_NAME: &str = "vec_set";
 pub const VEC_SET_STRUCT_NAME: &str = "VecSet";
 
-pub const ALLOW_ATTR_CATEGORY: &str = "lint";
-pub const LINT_WARNING_PREFIX: &str = "Lint ";
-
 pub const SHARE_OWNED_FILTER_NAME: &str = "share_owned";
 pub const SELF_TRANSFER_FILTER_NAME: &str = "self_transfer";
 pub const CUSTOM_STATE_CHANGE_FILTER_NAME: &str = "custom_state_change";
 pub const COIN_FIELD_FILTER_NAME: &str = "coin_field";
 pub const FREEZE_WRAPPED_FILTER_NAME: &str = "freeze_wrapped";
 pub const COLLECTION_EQUALITY_FILTER_NAME: &str = "collection_equality";
-pub const CONSTANT_NAMING_FILTER_NAME: &str = "constant_naming";
-pub const SHILF_OVERFLOW_NAME: &str = "shift_overflow";
-pub const MULTIPLICATION_OVERFLOW_FILTER_NAME: &str = "multiplication_overflow";
+pub const PUBLIC_RANDOM_FILTER_NAME: &str = "public_random";
+
+pub const RANDOM_MOD_NAME: &str = "random";
+pub const RANDOM_STRUCT_NAME: &str = "Random";
+pub const RANDOM_GENERATOR_STRUCT_NAME: &str = "RandomGenerator";
+
 pub const INVALID_LOC: Loc = Loc::invalid();
 
 pub enum LinterDiagCategory {
@@ -80,10 +81,7 @@ pub enum LinterDiagCategory {
     CoinField,
     FreezeWrapped,
     CollectionEquality,
-    ConstantNaming,
-    ShiftOperationOverflow,
-    //custom rules
-    MultiplicationOverflow,
+    PublicRandom,
 }
 
 /// A default code for each linter category (as long as only one code per category is used, no other
@@ -129,59 +127,32 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
             LINTER_DEFAULT_DIAG_CODE,
             Some(COLLECTION_EQUALITY_FILTER_NAME),
         ),
+        WarningFilter::code(
+            Some(LINT_WARNING_PREFIX),
+            LinterDiagCategory::PublicRandom as u8,
+            LINTER_DEFAULT_DIAG_CODE,
+            Some(PUBLIC_RANDOM_FILTER_NAME),
+        ),
     ];
-    if INCLUDE_NEW_RULES {
-        let mut custom_filters_list = custom_filters();
-        filters.append(&mut custom_filters_list);
-    }
+
     (Some(ALLOW_ATTR_CATEGORY.into()), filters)
 }
 
-pub fn custom_filters() -> Vec<WarningFilter> {
-    let filters = vec![
-        WarningFilter::code(
-            Some(LINT_WARNING_PREFIX),
-            LinterDiagCategory::ConstantNaming as u8,
-            LINTER_DEFAULT_DIAG_CODE,
-            Some(CONSTANT_NAMING_FILTER_NAME),
-        ),
-        WarningFilter::code(
-            Some(LINT_WARNING_PREFIX),
-            LinterDiagCategory::ShiftOperationOverflow as u8,
-            LINTER_DEFAULT_DIAG_CODE,
-            Some(SHILF_OVERFLOW_NAME),
-        ),
-        WarningFilter::code(
-            Some(LINT_WARNING_PREFIX),
-            LinterDiagCategory::MultiplicationOverflow as u8,
-            LINTER_DEFAULT_DIAG_CODE,
-            Some(MULTIPLICATION_OVERFLOW_FILTER_NAME),
-        ),
-    ];
-    filters
-}
-pub fn linter_visitors() -> Vec<Visitor> {
-    let mut visitors = vec![
-        share_owned::ShareOwnedVerifier.visitor(),
-        self_transfer::SelfTransferVerifier.visitor(),
-        custom_state_change::CustomStateChangeVerifier.visitor(),
-        coin_field::CoinFieldVisitor.visitor(),
-        freeze_wrapped::FreezeWrappedVisitor.visitor(),
-        collection_equality::CollectionEqualityVisitor.visitor(),
-    ];
-    if INCLUDE_NEW_RULES {
-        let mut custom_visitor_list = custom_linter_visitors();
-        visitors.append(&mut custom_visitor_list);
+pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
+    match level {
+        LintLevel::None => vec![],
+        LintLevel::Default | LintLevel::All => {
+            vec![
+                share_owned::ShareOwnedVerifier.visitor(),
+                self_transfer::SelfTransferVerifier.visitor(),
+                custom_state_change::CustomStateChangeVerifier.visitor(),
+                coin_field::CoinFieldVisitor.visitor(),
+                freeze_wrapped::FreezeWrappedVisitor.visitor(),
+                collection_equality::CollectionEqualityVisitor.visitor(),
+                public_random::PublicRandomVisitor.visitor(),
+            ]
+        }
     }
-    visitors
-}
-
-pub fn custom_linter_visitors() -> Vec<Visitor> {
-    vec![
-        custom_rules::constant_naming::ConstantNamingVisitor.visitor(),
-        custom_rules::shift_overflow::ShiftOperationOverflowVisitor.visitor(),
-        custom_rules::multiplication_overflow::MultiplicationOverflowVisitor.visitor(),
-    ]
 }
 
 pub fn base_type(t: &N::Type) -> Option<&N::Type> {
