@@ -10,13 +10,14 @@ use crate::{
     expansion::ast::Value_,
     parser::ast::BinOp_,
     shared::{program_info::TypingProgramInfo, CompilationEnv},
-    sui_mode::linters::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX},
     typing::{
         ast::{self as T, UnannotatedExp_},
         visitor::{TypingVisitorConstructor, TypingVisitorContext},
     },
 };
 use move_ir_types::location::Loc;
+
+use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const BOOL_COMPARISON_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
@@ -26,13 +27,13 @@ const BOOL_COMPARISON_DIAG: DiagnosticInfo = custom(
     "unnecessary boolean comparison to true or false",
 );
 
-pub struct BoolComparisonVisitor;
+pub struct BoolComparison;
 
 pub struct Context<'a> {
     env: &'a mut CompilationEnv,
 }
 
-impl TypingVisitorConstructor for BoolComparisonVisitor {
+impl TypingVisitorConstructor for BoolComparison {
     type Context<'a> = Context<'a>;
 
     fn context<'a>(
