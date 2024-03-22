@@ -6,13 +6,14 @@ use crate::{
     naming::ast::{StructDefinition, StructFields},
     parser::ast::Ability_,
     shared::{program_info::TypingProgramInfo, CompilationEnv},
-    sui_mode::linters::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX},
     typing::{
         ast::{self as T},
         visitor::TypingVisitor,
     },
 };
 use move_ir_types::location::{Loc, Spanned};
+
+use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const MISSING_KEY_ABILITY_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
@@ -22,9 +23,9 @@ const MISSING_KEY_ABILITY_DIAG: DiagnosticInfo = custom(
     "Struct has an 'id' field of type 'UID' but is missing the 'key' ability.",
 );
 
-pub struct MissingKeyVisitor;
+pub struct MissingKey;
 
-impl TypingVisitor for MissingKeyVisitor {
+impl TypingVisitor for MissingKey {
     fn visit(
         &mut self,
         env: &mut CompilationEnv,
