@@ -1,9 +1,8 @@
-//! The `CombinableBoolVisitor` detects and warns about boolean conditions in Move code that can be simplified.
+//! The `CombinableBool` detects and warns about boolean conditions in Move code that can be simplified.
 //! It identifies comparisons that are logically equivalent and suggests more concise alternatives.
 //! This rule focuses on simplifying expressions involving `==`, `<`, `>`, and `!=` operators to improve code readability.
 use move_ir_types::location::Loc;
 
-use crate::sui_mode::linters::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
 use crate::{
     diag,
     diagnostics::{
@@ -18,6 +17,8 @@ use crate::{
     },
 };
 
+use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
+
 const COMBINABLE_BOOL_COND_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
@@ -26,13 +27,13 @@ const COMBINABLE_BOOL_COND_DIAG: DiagnosticInfo = custom(
     "",
 );
 
-pub struct CombinableBoolVisitor;
+pub struct CombinableBool;
 
 pub struct Context<'a> {
     env: &'a mut CompilationEnv,
 }
 
-impl TypingVisitorConstructor for CombinableBoolVisitor {
+impl TypingVisitorConstructor for CombinableBool {
     type Context<'a> = Context<'a>;
 
     fn context<'a>(
