@@ -1,6 +1,5 @@
-//! Detect potential overflow scenarios where the number of bits being shifted exceeds the bit width of
-//! the variable being shifted, which could lead to unintended behavior or loss of data. If such a
-//! potential overflow is detected, a warning is generated to alert the developer.
+//! Detects and suggests simplification for `if c { true } else { false }` and its reverse pattern.
+//! Encourages using the condition directly (or its negation) for clearer and more concise code.
 use crate::{
     diag,
     diagnostics::{
@@ -8,16 +7,13 @@ use crate::{
         WarningFilters,
     },
     expansion::ast::Value_,
-    naming::ast::{BuiltinTypeName_, TypeName_, Type_},
-    parser::ast::BinOp_,
     shared::{program_info::TypingProgramInfo, CompilationEnv},
     typing::{
-        ast::{self as T, UnannotatedExp_},
+        ast::{self as T, SequenceItem_, UnannotatedExp_},
         visitor::{TypingVisitorConstructor, TypingVisitorContext},
     },
 };
 use move_ir_types::location::Loc;
-use std::str::FromStr;
 
 use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
 
@@ -26,7 +22,7 @@ const REDUNDANT_CONDITIONAL_DIAG: DiagnosticInfo = custom(
     Severity::Warning,
     LinterDiagCategory::RedundantConditional as u8,
     LINTER_DEFAULT_DIAG_CODE,
-    "Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.",
+    "",
 );
 
 pub struct RedundantConditional;
@@ -49,28 +45,48 @@ impl TypingVisitorConstructor for RedundantConditional {
 
 impl TypingVisitorContext for Context<'_> {
     fn visit_exp_custom(&mut self, exp: &mut T::Exp) -> bool {
-        match exp.exp.value {
-            // Match against an if-else expression pattern
+        match &exp.exp.value {
             UnannotatedExp_::IfElse(condition, if_block, else_block) => {
-                // Check if the if and else blocks are simply returning true and false respectively
-                // let if_block_returns_true = matches!(
-                //     if_block.exp.value,
-                //     UnannotatedExp_::Value(Value_::Bool(true))
-                // );
-                // let else_block_returns_false =
-                //     matches!(else_block.exp, UnannotatedExp_::Value(Value_::Bool(false)));
+                let condition_name: String = match condition.exp.value {
+                    UnannotatedExp_::Copy { var, .. } => {
+                        let name = var.value.name.clone();
+                        name.as_str().to_owned()
+                    }
+                    _ => "".to_owned(),
+                };
+                let extract_bool_literal_from_block = |block: &T::Exp| -> Option<bool> {
+                    if let UnannotatedExp_::Block(seq) = &block.exp.value {
+                        if seq.1.len() == 1 {
+                            if let SequenceItem_::Seq(seq_exp) = &seq.1[0].value {
+                                if let UnannotatedExp_::Value(val) = &seq_exp.exp.value {
+                                    if let Value_::Bool(b) = &val.value {
+                                        return Some(*b);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    None
+                };
 
-                // // Check the reverse case: if returns false and else returns true
-                // let if_block_returns_false =
-                //     matches!(if_block.exp, UnannotatedExp_::Value(Value_::Bool(false)));
-                // let else_block_returns_true =
-                //     matches!(else_block.exp, UnannotatedExp_::Value(Value_::Bool(true)));
-
-                // if (if_block_returns_true && else_block_returns_false)
-                //     || (if_block_returns_false && else_block_returns_true)
-                // {
-                //     report_redundant_conditional(self.env, exp.exp.loc, &condition);
-                // }
+                if let Some(if_block_bool) = extract_bool_literal_from_block(&if_block) {
+                    if let Some(else_block_bool) = extract_bool_literal_from_block(&else_block) {
+                        let mut recommend_condition = format!("{}", condition_name);
+                        if !if_block_bool {
+                            recommend_condition = format!("!{}", condition_name);
+                        }
+                        if if_block_bool != else_block_bool {
+                            report_redundant_conditional(
+                                self.env,
+                                exp.exp.loc,
+                                condition_name.as_str(),
+                                if_block_bool.to_string().as_str(),
+                                else_block_bool.to_string().as_str(),
+                                recommend_condition.as_str(),
+                            )
+                        }
+                    }
+                }
             }
             _ => {}
         }
@@ -85,10 +101,17 @@ impl TypingVisitorContext for Context<'_> {
     }
 }
 
-fn report_overflow(env: &mut CompilationEnv, shift_amount: u128, bit_width: u128, loc: Loc) {
+fn report_redundant_conditional(
+    env: &mut CompilationEnv,
+    loc: Loc,
+    condition: &str,
+    if_body: &str,
+    else_body: &str,
+    corrected: &str,
+) {
     let msg = format!(
-        "The {} of bits being shifted exceeds the {} bit width of the variable being shifted.",
-        shift_amount, bit_width
+        "Detected a redundant conditional expression `if {} {{ {} }} else {{ {} }}`. Consider using `{}` directly.",
+        condition, if_body, else_body, corrected
     );
     let diag = diag!(REDUNDANT_CONDITIONAL_DIAG, (loc, msg));
     env.add_diag(diag);
