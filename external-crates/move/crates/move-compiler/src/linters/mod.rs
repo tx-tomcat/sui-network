@@ -21,7 +21,7 @@ pub enum LintLevel {
 
 pub const ALLOW_ATTR_CATEGORY: &str = "lint";
 pub const LINT_WARNING_PREFIX: &str = "Lint ";
-pub const SHILF_OVERFLOW_FILTER_NAME: &str = "shift_overflow";
+pub const EXCESSIVE_NESTING_FILTER_NAME: &str = "excessive_nesting";
 
 pub const LINTER_DEFAULT_DIAG_CODE: u8 = 1;
 
@@ -36,7 +36,7 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
             Some(LINT_WARNING_PREFIX),
             LinterDiagCategory::ExcessiveNesting as u8,
             LINTER_DEFAULT_DIAG_CODE,
-            Some(SHILF_OVERFLOW_FILTER_NAME),
+            Some(EXCESSIVE_NESTING_FILTER_NAME),
         )],
     )
 }
