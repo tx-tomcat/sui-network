@@ -1,6 +1,6 @@
-//! Detect potential overflow scenarios where the number of bits being shifted exceeds the bit width of
-//! the variable being shifted, which could lead to unintended behavior or loss of data. If such a
-//! potential overflow is detected, a warning is generated to alert the developer.
+//! Detects empty `else` branches in conditional structures, suggesting their removal for cleaner code.
+//! Aims to flag potentially unnecessary or unimplemented placeholders within `if-else` statements.
+//! Encourages code clarity and maintainability by eliminating redundant branches.
 use crate::{
     diag,
     diagnostics::{
