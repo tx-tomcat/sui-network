@@ -1,4 +1,4 @@
-//! Encourages replacing `while(true)` with `loop` for infinite loops in Rust for clarity and conciseness.
+//! Encourages replacing `while(true)` with `loop` for infinite loops in Move for clarity and conciseness.
 //! Identifies `while(true)` patterns, suggesting a more idiomatic approach using `loop`.
 //! Aims to enhance code readability and adherence to Rust idioms.
 use crate::{
