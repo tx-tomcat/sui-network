@@ -1,6 +1,6 @@
-//! Detect potential overflow scenarios where the number of bits being shifted exceeds the bit width of
-//! the variable being shifted, which could lead to unintended behavior or loss of data. If such a
-//! potential overflow is detected, a warning is generated to alert the developer.
+//! Detects empty loop expressions, including `while(true) {}` and `loop {}` without exit mechanisms, highlighting potential infinite loops.
+//! Aims to identify and warn against loops that may lead to hangs or excessive resource consumption due to lack of content.
+//! Encourages adding meaningful logic within loops or ensuring proper exit conditions to improve code reliability and maintainability.
 use crate::{
     diag,
     diagnostics::{
