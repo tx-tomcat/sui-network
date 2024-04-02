@@ -13,5 +13,12 @@ module 0x42::M {
         } else {
             false
         };
+
+        if (foo()) true else false;
+        if (foo()) (true) else (false);
+    }
+
+    fun foo(): bool {
+        true
     }
 }

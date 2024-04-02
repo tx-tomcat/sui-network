@@ -23,9 +23,9 @@ pub const LINT_WARNING_PREFIX: &str = "Lint ";
 pub const REDUNDANT_CONDITIONAL_FILTER_NAME: &str = "redundant_conditional";
 
 pub const LINTER_DEFAULT_DIAG_CODE: u8 = 1;
-
+pub const REDUNDANT_CONDITIONAL_DIAG_CODE: u8 = 2;
 pub enum LinterDiagCategory {
-    RedundantConditional,
+    Readability,
 }
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
@@ -33,8 +33,8 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
         Some(ALLOW_ATTR_CATEGORY.into()),
         vec![WarningFilter::code(
             Some(LINT_WARNING_PREFIX),
-            LinterDiagCategory::RedundantConditional as u8,
-            LINTER_DEFAULT_DIAG_CODE,
+            LinterDiagCategory::Readability as u8,
+            REDUNDANT_CONDITIONAL_DIAG_CODE,
             Some(REDUNDANT_CONDITIONAL_FILTER_NAME),
         )],
     )
