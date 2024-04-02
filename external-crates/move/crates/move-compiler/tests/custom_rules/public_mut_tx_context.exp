@@ -1,4 +1,4 @@
-warning[Lint W00001]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+warning[Lint W00001]: 
   ┌─ tests/custom_rules/public_mut_tx_context.move:3:28
   │
 3 │     public fun mint(_ctx: &TxContext) {
