@@ -1,3 +1,6 @@
+// Copyright (c) The Move Contributors
+// SPDX-License-Identifier: Apache-2.0
+
 //! Enforces that public functions use `&mut TxContext` instead of `&TxContext` to ensure upgradability.
 //! Detects and reports instances where a non-mutable reference to `TxContext` is used in public function signatures.
 //! Promotes best practices for future-proofing smart contract code by allowing mutation of the transaction context.
