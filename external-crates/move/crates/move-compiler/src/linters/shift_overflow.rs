@@ -21,13 +21,13 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagCategory, LINT_WARNING_PREFIX, MOVE_LINT_WARNING_SHIFT_OVERFLOW};
 
 const SHIFT_OPERATION_OVERFLOW_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::ShiftOperationOverflow as u8,
-    LINTER_DEFAULT_DIAG_CODE,
+    LinterDiagCategory::PotentialOverflow as u8,
+    MOVE_LINT_WARNING_SHIFT_OVERFLOW,
     "Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.",
 );
 

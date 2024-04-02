@@ -25,17 +25,17 @@ pub const LINT_WARNING_PREFIX: &str = "Lint ";
 pub const SHILF_OVERFLOW_FILTER_NAME: &str = "shift_overflow";
 
 pub const LINTER_DEFAULT_DIAG_CODE: u8 = 1;
-
+pub const MOVE_LINT_WARNING_SHIFT_OVERFLOW: u8 = 2;
 pub enum LinterDiagCategory {
-    ShiftOperationOverflow,
+    PotentialOverflow,
 }
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
         Some(ALLOW_ATTR_CATEGORY.into()),
         vec![WarningFilter::code(
             Some(LINT_WARNING_PREFIX),
-            LinterDiagCategory::ShiftOperationOverflow as u8,
-            LINTER_DEFAULT_DIAG_CODE,
+            LinterDiagCategory::PotentialOverflow as u8,
+            MOVE_LINT_WARNING_SHIFT_OVERFLOW,
             Some(SHILF_OVERFLOW_FILTER_NAME),
         )],
     )
