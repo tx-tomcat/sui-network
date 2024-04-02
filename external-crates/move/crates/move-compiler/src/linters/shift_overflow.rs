@@ -1,3 +1,6 @@
+// Copyright (c) Move Contributors
+// SPDX-License-Identifier: Apache-2.0
+
 //! Detect potential overflow scenarios where the number of bits being shifted exceeds the bit width of
 //! the variable being shifted, which could lead to unintended behavior or loss of data. If such a
 //! potential overflow is detected, a warning is generated to alert the developer.
@@ -9,7 +12,7 @@ use crate::{
     },
     expansion::ast::Value_,
     naming::ast::{BuiltinTypeName_, Type_},
-    parser::ast::BinOp_,
+    parser::ast::{BinOp, BinOp_},
     shared::{program_info::TypingProgramInfo, CompilationEnv},
     typing::{
         ast::{self as T, UnannotatedExp_},
@@ -49,19 +52,17 @@ impl TypingVisitorConstructor for ShiftOperationOverflow {
 impl TypingVisitorContext for Context<'_> {
     fn visit_exp_custom(&mut self, exp: &mut T::Exp) -> bool {
         // Check if the expression is a binary operation and if it is a shift operation.
-        if let UnannotatedExp_::BinopExp(lhs, op, _, rhs) = &exp.exp.value {
-            // can't do  let UnannotatedExp_::BinopExp(lhs, BinOp_::Shl | BinOp_::Shr, _, rhs) = &exp.exp.value else { return };
-            // because the op is Spanned<BinOp_> and not BinOp_
-            if matches!(op.value, BinOp_::Shl | BinOp_::Shr) {
-                match (
-                    get_bit_width(&lhs.ty.value),
-                    get_shift_amount(&rhs.exp.value),
-                ) {
-                    (Some(bit_width), Some(shift_amount)) if shift_amount >= bit_width => {
-                        report_overflow(self.env, shift_amount, bit_width, op.loc);
-                    }
-                    _ => (),
+        if let UnannotatedExp_::BinopExp(lhs, sp!(_, BinOp_::Shl | BinOp_::Shr), _, rhs) =
+            &exp.exp.value
+        {
+            match (
+                get_bit_width(&lhs.ty.value),
+                get_shift_amount(&rhs.exp.value),
+            ) {
+                (Some(bit_width), Some(shift_amount)) if shift_amount >= bit_width => {
+                    report_overflow(self.env, shift_amount, bit_width, exp.exp.loc);
                 }
+                _ => (),
             }
         }
         false
@@ -88,11 +89,8 @@ fn get_bit_width(ty: &Type_) -> Option<u128> {
 }
 
 fn get_shift_amount(value: &UnannotatedExp_) -> Option<u128> {
-    if let UnannotatedExp_::Value(v) = value {
-        match &v.value {
-            Value_::U8(v) => Some(*v as u128),
-            _ => None,
-        }
+    if let UnannotatedExp_::Value(sp!(_, Value_::U8(v))) = value {
+        Some(*v as u128)
     } else {
         None
     }
