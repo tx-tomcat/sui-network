@@ -17,13 +17,13 @@ use crate::{
     },
 };
 
-use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagCategory, LINTER_COMB_BOOL, LINT_WARNING_PREFIX};
 
 const COMBINABLE_BOOL_COND_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::CombinableBool as u8,
-    LINTER_DEFAULT_DIAG_CODE,
+    LinterDiagCategory::Readability as u8,
+    LINTER_COMB_BOOL,
     "",
 );
 
@@ -47,38 +47,96 @@ impl TypingVisitorConstructor for CombinableBool {
 
 impl TypingVisitorContext for Context<'_> {
     fn visit_exp_custom(&mut self, exp: &mut T::Exp) -> bool {
-        if let UnannotatedExp_::BinopExp(e1, _op, _, e2) = &exp.exp.value {
+        if let UnannotatedExp_::BinopExp(e1, op, _, e2) = &exp.exp.value {
             if let (
-                UnannotatedExp_::BinopExp(_, op1, _, _),
-                UnannotatedExp_::BinopExp(_, op2, _, _),
+                UnannotatedExp_::BinopExp(lhs1, op1, _, rhs1),
+                UnannotatedExp_::BinopExp(lhs2, op2, _, rhs2),
             ) = (&e1.exp.value, &e2.exp.value)
             {
-                // Check if operands are the same
-                match (&op1.value, &op2.value) {
-                    // Existing simplification cases
-                    (BinOp_::Eq, BinOp_::Lt) | (BinOp_::Lt, BinOp_::Eq) => {
-                        add_replaceable_comparison_diag(
-                            self.env,
-                            exp.exp.loc,
-                            "Consider simplifying to `<=`.",
-                        );
+                // Check both exp side are the same
+                if lhs1 == lhs2 && rhs1 == rhs2 {
+                    match (&op1.value, &op2.value) {
+                        // Existing simplification cases
+                        (BinOp_::Eq, BinOp_::Lt) | (BinOp_::Lt, BinOp_::Eq) => {
+                            if op.value == BinOp_::And {
+                                add_replaceable_comparison_diag(
+                                    self.env,
+                                    exp.exp.loc,
+                                    "This is always contradictory and can be simplified to false",
+                                );
+                            } else {
+                                add_replaceable_comparison_diag(
+                                    self.env,
+                                    exp.exp.loc,
+                                    "Consider simplifying to `<=`.",
+                                );
+                            }
+                        }
+                        (BinOp_::Eq, BinOp_::Gt) | (BinOp_::Gt, BinOp_::Eq) => {
+                            if op.value == BinOp_::And {
+                                add_replaceable_comparison_diag(
+                                    self.env,
+                                    exp.exp.loc,
+                                    "This is always contradictory and can be simplified to false",
+                                );
+                            } else {
+                                add_replaceable_comparison_diag(
+                                    self.env,
+                                    exp.exp.loc,
+                                    "Consider simplifying to `>=`.",
+                                );
+                            }
+                        }
+                        (BinOp_::Ge, BinOp_::Eq) | (BinOp_::Eq, BinOp_::Ge) => {
+                            if op.value == BinOp_::And {
+                                add_replaceable_comparison_diag(
+                                    self.env,
+                                    exp.exp.loc,
+                                    "Consider simplifying to `==`.",
+                                );
+                            } else {
+                                add_replaceable_comparison_diag(
+                                    self.env,
+                                    exp.exp.loc,
+                                    "Consider simplifying to `>=`.",
+                                );
+                            }
+                        }
+                        (BinOp_::Le, BinOp_::Eq) | (BinOp_::Eq, BinOp_::Le) => {
+                            if op.value == BinOp_::And {
+                                add_replaceable_comparison_diag(
+                                    self.env,
+                                    exp.exp.loc,
+                                    "Consider simplifying to `==`.",
+                                );
+                            } else {
+                                add_replaceable_comparison_diag(
+                                    self.env,
+                                    exp.exp.loc,
+                                    "Consider simplifying to `<=`.",
+                                );
+                            }
+                        }
+                        (BinOp_::Neq, BinOp_::Lt) | (BinOp_::Lt, BinOp_::Neq) => {
+                            if op.value == BinOp_::And {
+                                add_replaceable_comparison_diag(
+                                    self.env,
+                                    exp.exp.loc,
+                                    "Consider simplifying to `<`.",
+                                );
+                            }
+                        }
+                        (BinOp_::Neq, BinOp_::Gt) | (BinOp_::Gt, BinOp_::Neq) => {
+                            if op.value == BinOp_::And {
+                                add_replaceable_comparison_diag(
+                                    self.env,
+                                    exp.exp.loc,
+                                    "Consider simplifying to `>`.",
+                                );
+                            }
+                        }
+                        _ => {}
                     }
-                    (BinOp_::Eq, BinOp_::Gt) | (BinOp_::Gt, BinOp_::Eq) => {
-                        add_replaceable_comparison_diag(
-                            self.env,
-                            exp.exp.loc,
-                            "Consider simplifying to `>=`.",
-                        );
-                    }
-                    // New cases for removing unnecessary `!=`
-                    (BinOp_::Neq, BinOp_::Lt)
-                    | (BinOp_::Lt, BinOp_::Neq)
-                    | (BinOp_::Neq, BinOp_::Gt)
-                    | (BinOp_::Gt, BinOp_::Neq) => {
-                        add_replaceable_comparison_diag(
-                            self.env, exp.exp.loc,"Unequal (!=) condition is unnecessary and can be removed for simplicity.");
-                    }
-                    _ => {}
                 }
             }
         }

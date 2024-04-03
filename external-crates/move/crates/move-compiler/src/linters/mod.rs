@@ -23,9 +23,9 @@ pub const LINT_WARNING_PREFIX: &str = "Lint ";
 pub const COMBINABLE_BOOL_FILTER_NAME: &str = "combinable_bool_conditions";
 
 pub const LINTER_DEFAULT_DIAG_CODE: u8 = 1;
-
+pub const LINTER_COMB_BOOL: u8 = 3;
 pub enum LinterDiagCategory {
-    CombinableBool,
+    Readability,
 }
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
@@ -33,8 +33,8 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
         Some(ALLOW_ATTR_CATEGORY.into()),
         vec![WarningFilter::code(
             Some(LINT_WARNING_PREFIX),
-            LinterDiagCategory::CombinableBool as u8,
-            LINTER_DEFAULT_DIAG_CODE,
+            LinterDiagCategory::Readability as u8,
+            LINTER_COMB_BOOL,
             Some(COMBINABLE_BOOL_FILTER_NAME),
         )],
     )
