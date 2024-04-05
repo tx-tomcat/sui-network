@@ -1,0 +1,80 @@
+warning[W09002]: unused variable
+  ┌─ tests/linter/absurd_extreme_comparisons.move:6:13
+  │
+6 │         let u32_max: u32 = 4294967295;
+  │             ^^^^^^^ Unused local variable 'u32_max'. Consider removing or prefixing with an underscore: '_u32_max'
+  │
+  = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[W09002]: unused variable
+  ┌─ tests/linter/absurd_extreme_comparisons.move:7:13
+  │
+7 │         let u32_min = 0;
+  │             ^^^^^^^ Unused local variable 'u32_min'. Consider removing or prefixing with an underscore: '_u32_min'
+  │
+  = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[W09002]: unused variable
+  ┌─ tests/linter/absurd_extreme_comparisons.move:8:13
+  │
+8 │         let u16_max: u16 = 65535;
+  │             ^^^^^^^ Unused local variable 'u16_max'. Consider removing or prefixing with an underscore: '_u16_max'
+  │
+  = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[W09002]: unused variable
+  ┌─ tests/linter/absurd_extreme_comparisons.move:9:13
+  │
+9 │         let u16_min = 0;
+  │             ^^^^^^^ Unused local variable 'u16_min'. Consider removing or prefixing with an underscore: '_u16_min'
+  │
+  = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[W09002]: unused variable
+   ┌─ tests/linter/absurd_extreme_comparisons.move:10:13
+   │
+10 │         let u8_max: u8 = 255;
+   │             ^^^^^^ Unused local variable 'u8_max'. Consider removing or prefixing with an underscore: '_u8_max'
+   │
+   = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[W09002]: unused variable
+   ┌─ tests/linter/absurd_extreme_comparisons.move:11:13
+   │
+11 │         let u8_min = 0;
+   │             ^^^^^^ Unused local variable 'u8_min'. Consider removing or prefixing with an underscore: '_u8_min'
+   │
+   = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[W09002]: unused variable
+   ┌─ tests/linter/absurd_extreme_comparisons.move:12:13
+   │
+12 │         let u128_max: u128 = 340282366920938463463374607431768211455;
+   │             ^^^^^^^^ Unused local variable 'u128_max'. Consider removing or prefixing with an underscore: '_u128_max'
+   │
+   = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[W09002]: unused variable
+   ┌─ tests/linter/absurd_extreme_comparisons.move:13:13
+   │
+13 │         let u128_min = 0;
+   │             ^^^^^^^^ Unused local variable 'u128_min'. Consider removing or prefixing with an underscore: '_u128_min'
+   │
+   = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00001]: Expression suggests an unintended comparison
+   ┌─ tests/linter/absurd_extreme_comparisons.move:15:13
+   │
+15 │         if (x > u64_max){
+   │             ^^^^^^^^^^^ Cannot compare parameter with max value
+   │
+   = This warning can be suppressed with '#[allow(lint(absurd_extreme_comparisons))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00001]: Expression suggests an unintended comparison
+   ┌─ tests/linter/absurd_extreme_comparisons.move:19:13
+   │
+19 │         if (x < u64_min){
+   │             ^^^^^^^^^^^ Cannot compare declared variable with min value
+   │
+   = This warning can be suppressed with '#[allow(lint(absurd_extreme_comparisons))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
