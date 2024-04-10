@@ -1,0 +1,154 @@
+warning[Lint W00009]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+  ┌─ tests/linter/eq_op.move:8:17
+  │
+8 │         let _ = a == a;
+  │                 ^^^^^^ Equal operands detected in binary operation, which might indicate a logical error or redundancy.
+  │
+  = This warning can be suppressed with '#[allow(lint(equal_operands))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00009]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+  ┌─ tests/linter/eq_op.move:9:17
+  │
+9 │         let _ = b != b;
+  │                 ^^^^^^ Equal operands detected in binary operation, which might indicate a logical error or redundancy.
+  │
+  = This warning can be suppressed with '#[allow(lint(equal_operands))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00009]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+   ┌─ tests/linter/eq_op.move:10:17
+   │
+10 │         let _ = a > a;
+   │                 ^^^^^ Equal operands detected in binary operation, which might indicate a logical error or redundancy.
+   │
+   = This warning can be suppressed with '#[allow(lint(equal_operands))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00009]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+   ┌─ tests/linter/eq_op.move:11:17
+   │
+11 │         let _ = a >= a;
+   │                 ^^^^^^ Equal operands detected in binary operation, which might indicate a logical error or redundancy.
+   │
+   = This warning can be suppressed with '#[allow(lint(equal_operands))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+error[E04007]: incompatible types
+   ┌─ tests/linter/eq_op.move:14:17
+   │
+ 4 │         let a = 5;
+   │             - Given: integer
+   ·
+14 │         let _ = a && a;
+   │                 ^ -- Expected: 'bool'
+   │                 │  
+   │                 Invalid argument to '&&'
+
+warning[Lint W00009]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+   ┌─ tests/linter/eq_op.move:14:17
+   │
+14 │         let _ = a && a;
+   │                 ^^^^^^ Equal operands detected in binary operation, which might indicate a logical error or redundancy.
+   │
+   = This warning can be suppressed with '#[allow(lint(equal_operands))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+error[E04007]: incompatible types
+   ┌─ tests/linter/eq_op.move:14:22
+   │
+ 4 │         let a = 5;
+   │             - Given: integer
+   ·
+14 │         let _ = a && a;
+   │                   -- ^ Invalid argument to '&&'
+   │                   │   
+   │                   Expected: 'bool'
+
+error[E04007]: incompatible types
+   ┌─ tests/linter/eq_op.move:15:17
+   │
+ 5 │         let b = 10;
+   │             - Given: integer
+   ·
+15 │         let _ = b || b;
+   │                 ^ -- Expected: 'bool'
+   │                 │  
+   │                 Invalid argument to '||'
+
+warning[Lint W00009]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+   ┌─ tests/linter/eq_op.move:15:17
+   │
+15 │         let _ = b || b;
+   │                 ^^^^^^ Equal operands detected in binary operation, which might indicate a logical error or redundancy.
+   │
+   = This warning can be suppressed with '#[allow(lint(equal_operands))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+error[E04007]: incompatible types
+   ┌─ tests/linter/eq_op.move:15:22
+   │
+ 5 │         let b = 10;
+   │             - Given: integer
+   ·
+15 │         let _ = b || b;
+   │                   -- ^ Invalid argument to '||'
+   │                   │   
+   │                   Expected: 'bool'
+
+warning[Lint W00009]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+   ┌─ tests/linter/eq_op.move:18:17
+   │
+18 │         let _ = a & a;
+   │                 ^^^^^ Equal operands detected in binary operation, which might indicate a logical error or redundancy.
+   │
+   = This warning can be suppressed with '#[allow(lint(equal_operands))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00009]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+   ┌─ tests/linter/eq_op.move:19:17
+   │
+19 │         let _ = b | b;
+   │                 ^^^^^ Equal operands detected in binary operation, which might indicate a logical error or redundancy.
+   │
+   = This warning can be suppressed with '#[allow(lint(equal_operands))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00009]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+   ┌─ tests/linter/eq_op.move:20:17
+   │
+20 │         let _ = a ^ a;
+   │                 ^^^^^ Equal operands detected in binary operation, which might indicate a logical error or redundancy.
+   │
+   = This warning can be suppressed with '#[allow(lint(equal_operands))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00009]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+   ┌─ tests/linter/eq_op.move:23:17
+   │
+23 │         let _ = a - a;
+   │                 ^^^^^ Equal operands detected in binary operation, which might indicate a logical error or redundancy.
+   │
+   = This warning can be suppressed with '#[allow(lint(equal_operands))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00009]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
+   ┌─ tests/linter/eq_op.move:24:17
+   │
+24 │         let _ = b / b;
+   │                 ^^^^^ Equal operands detected in binary operation, which might indicate a logical error or redundancy.
+   │
+   = This warning can be suppressed with '#[allow(lint(equal_operands))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+error[E04007]: incompatible types
+   ┌─ tests/linter/eq_op.move:31:17
+   │
+ 4 │         let a = 5;
+   │             - Given: integer
+   ·
+31 │         let _ = a && (b > a);
+   │                 ^ -- Expected: 'bool'
+   │                 │  
+   │                 Invalid argument to '&&'
+
+error[E04007]: incompatible types
+   ┌─ tests/linter/eq_op.move:32:17
+   │
+ 4 │         let a = 5;
+   │             - Given: integer
+   ·
+32 │         let _ = a || (a < b);
+   │                 ^ -- Expected: 'bool'
+   │                 │  
+   │                 Invalid argument to '||'
+
