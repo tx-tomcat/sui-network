@@ -1,0 +1,22 @@
+warning[W09003]: unused assignment
+  ┌─ tests/linter/self_assignment.move:8:9
+  │
+8 │         x = x;
+  │         ^ Unused assignment for variable 'x'. Consider removing, replacing with '_', or prefixing with '_' (e.g., '_x')
+  │
+  = This warning can be suppressed with '#[allow(unused_assignment)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00013]: Explicit self-assignment detected. This operation is usually unnecessary and could indicate a typo or logical error.
+  ┌─ tests/linter/self_assignment.move:8:9
+  │
+8 │         x = x;
+  │         ^^^^^ Explicit self-assignment detected for variable 'x'. Consider removing it to clarify intent.
+
+warning[W09003]: unused assignment
+   ┌─ tests/linter/self_assignment.move:14:9
+   │
+14 │         x = y;
+   │         ^ Unused assignment for variable 'x'. Consider removing, replacing with '_', or prefixing with '_' (e.g., '_x')
+   │
+   = This warning can be suppressed with '#[allow(unused_assignment)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
