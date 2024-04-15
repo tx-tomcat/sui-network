@@ -9,17 +9,15 @@ use crate::{
         codes::{custom, DiagnosticInfo, Severity},
         WarningFilters,
     },
-    expansion::ast::{ModuleIdent, Value_},
-    naming::ast::{BuiltinTypeName_, TypeName_, Type_},
-    parser::ast::{BinOp_, FunctionName},
+    expansion::ast::ModuleIdent,
+    parser::ast::FunctionName,
     shared::{program_info::TypingProgramInfo, CompilationEnv},
     typing::{
-        ast::{self as T, UnannotatedExp_},
+        ast::{self as T},
         visitor::{TypingVisitorConstructor, TypingVisitorContext},
     },
 };
 use move_ir_types::location::Loc;
-use std::str::FromStr;
 
 use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
 
