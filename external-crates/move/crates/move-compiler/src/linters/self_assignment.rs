@@ -46,6 +46,7 @@ impl TypingVisitorConstructor for SelfAssignmentCheck {
 
 impl TypingVisitorContext for Context<'_> {
     fn visit_exp_custom(&mut self, exp: &mut T::Exp) -> bool {
+        eprintln!("Checking self-assignment {:?}", exp.exp.value);
         if let UnannotatedExp_::Assign(value_list, _, assign_exp) = &exp.exp.value {
             if let Some(
                 sp!(
