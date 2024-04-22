@@ -1,6 +1,6 @@
 module 0x42::M {
 
-    fun func1() {
+    fun func1(): (u64, u64) {
         let x = 5;
         let y = 10;
 
@@ -12,5 +12,6 @@ module 0x42::M {
 
         // Non-self-assignment for control
         x = y;
+        (x, y)
     }
 }
