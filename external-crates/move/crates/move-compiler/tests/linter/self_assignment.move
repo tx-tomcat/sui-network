@@ -1,19 +1,16 @@
 module 0x42::M {
 
     fun func1() {
-        // let x = 5;
-        // let y = 10;
+        let x = 5;
+        let y = 10;
 
-        // // Direct self-assignment
-        // x = x;
+        // Direct self-assignment
+        x = x;
 
-        // // Self-assignment within an expression (though not very meaningful in Move, included for completeness)
-        // y = y + 0;
+        // Self-assignment within an expression (though not very meaningful in Move, included for completeness)
+        y = y + 0;
 
-        // // Non-self-assignment for control
-        // x = y;
-        let (x, y) : (u8, u64) = (x, y);
-        // y = y + 0;
-        // x = x + 0;
+        // Non-self-assignment for control
+        x = y;
     }
 }
