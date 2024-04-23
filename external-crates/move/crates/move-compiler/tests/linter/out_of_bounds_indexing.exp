@@ -1,6 +1,0 @@
-warning[Lint W00001]: Potential overflow detected. The number of bits being shifted exceeds the bit width of the variable being shifted.
-  ┌─ tests/linter/out_of_bounds_indexing.move:6:9
-  │
-6 │         vector::borrow(&arr, 10);
-  │         ^^^^^^^^^^^^^^^^^^^^^^^^ Array index out of bounds: attempting to access index 10 in array 'arr' with size known at compile time.
-
