@@ -18,13 +18,13 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINTER_DOUBLE_COMPARISON_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagCategory, DOUBLE_COMPARISON_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const DOUBLE_COMPARISON_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
     LinterDiagCategory::Complexity as u8,
-    LINTER_DOUBLE_COMPARISON_DIAG_CODE,
+    DOUBLE_COMPARISON_DIAG_CODE,
     "Double comparison detected that could be simplified to a single range check.",
 );
 
