@@ -14,8 +14,8 @@ use crate::{
         missing_key::MissingKey, multiplication_overflow::MultiplicationOverflow,
         needless_else::EmptyElseBranch, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
         redundant_assert::AssertTrueFals, redundant_conditional::RedundantConditional,
-        self_assignment::SelfAssignmentCheck, shift_overflow::ShiftOperationOverflow,
-        too_many_arguments::ExcessiveParametersCheck,
+        redundant_ref_deref::RedundantRefDerefVisitor, self_assignment::SelfAssignmentCheck,
+        shift_overflow::ShiftOperationOverflow, too_many_arguments::ExcessiveParametersCheck,
     },
     typing::visitor::TypingVisitor,
 };
@@ -34,6 +34,7 @@ pub mod needless_else;
 pub mod out_of_bounds_indexing;
 pub mod redundant_assert;
 pub mod redundant_conditional;
+pub mod redundant_ref_deref;
 pub mod self_assignment;
 pub mod shift_overflow;
 pub mod too_many_arguments;
@@ -114,6 +115,9 @@ pub const BOOL_COMPARISON_DIAG_CODE: u8 = 17;
 
 pub const COLLAPSIBLE_ELSE_FILTER_NAME: &str = "collapsible_else_if";
 pub const COLLAPSIBLE_ELSE_DIAG_CODE: u8 = 18;
+
+pub const REDUNDANT_REF_DEREF_FILTER_NAME: &str = "redundant_ref_deref";
+pub const REDUNDANT_REF_DEREF_DIAG_CODE: u8 = 19;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -227,6 +231,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 COLLAPSIBLE_ELSE_DIAG_CODE,
                 Some(COLLAPSIBLE_ELSE_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Correctness as u8,
+                REDUNDANT_REF_DEREF_DIAG_CODE,
+                Some(REDUNDANT_REF_DEREF_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -255,6 +265,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 double_comparisons::DoubleComparisonCheck::visitor(DoubleComparisonCheck),
                 bool_comparison::BoolComparison::visitor(BoolComparison),
                 collapsible_else_if::CollapsibleElseIf::visitor(CollapsibleElseIf),
+                redundant_ref_deref::RedundantRefDerefVisitor::visitor(RedundantRefDerefVisitor),
             ]
         }
     }
