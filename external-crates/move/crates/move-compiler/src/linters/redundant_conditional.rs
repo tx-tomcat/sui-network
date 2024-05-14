@@ -23,7 +23,7 @@ use super::{LinterDiagCategory, LINT_WARNING_PREFIX, REDUNDANT_CONDITIONAL_DIAG_
 const REDUNDANT_CONDITIONAL_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Readability as u8,
+    LinterDiagCategory::Complexity as u8,
     REDUNDANT_CONDITIONAL_DIAG_CODE,
     "",
 );
