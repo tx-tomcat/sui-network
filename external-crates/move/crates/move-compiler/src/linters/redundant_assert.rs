@@ -16,12 +16,12 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINT_WARNING_PREFIX, REDUNDANT_ASSERT_DIAG_CODE};
+use super::{LinterDiagnosticCategory, LINT_WARNING_PREFIX, REDUNDANT_ASSERT_DIAG_CODE};
 
 const REDUNDANT_ASSERT_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Correctness as u8,
+    LinterDiagnosticCategory::Correctness as u8,
     REDUNDANT_ASSERT_DIAG_CODE,
     "",
 );

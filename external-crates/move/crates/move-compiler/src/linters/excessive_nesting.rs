@@ -15,12 +15,12 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, EXCESSIVE_NESTING_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, EXCESSIVE_NESTING_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const EXCESSIVE_NESTING_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Complexity as u8,
+    LinterDiagnosticCategory::Complexity as u8,
     EXCESSIVE_NESTING_DIAG_CODE,
     "",
 );

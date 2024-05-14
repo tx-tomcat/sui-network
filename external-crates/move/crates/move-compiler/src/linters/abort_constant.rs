@@ -17,12 +17,12 @@ use crate::{
     },
 };
 
-use super::{LinterDiagCategory, ABORT_CONSTANT_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, ABORT_CONSTANT_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const ABORT_CONSTANT_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Style as u8,
+    LinterDiagnosticCategory::Style as u8,
     ABORT_CONSTANT_DIAG_CODE,
     "Prefer using named constants with 'abort' and 'assert' for clarity",
 );

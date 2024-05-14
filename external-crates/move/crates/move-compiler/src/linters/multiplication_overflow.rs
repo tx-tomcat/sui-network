@@ -18,12 +18,12 @@ use crate::{
 use move_ir_types::location::Loc;
 use std::str::FromStr;
 
-use super::{LinterDiagCategory, LINT_WARNING_PREFIX, MULTIPLICATION_OVERFLOW_DIAG_CODE};
+use super::{LinterDiagnosticCategory, LINT_WARNING_PREFIX, MULTIPLICATION_OVERFLOW_DIAG_CODE};
 
 const SHIFT_OPERATION_OVERFLOW_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Suspicious as u8,
+    LinterDiagnosticCategory::Suspicious as u8,
     MULTIPLICATION_OVERFLOW_DIAG_CODE,
     "Potential overflow detected in multiplication operation",
 );

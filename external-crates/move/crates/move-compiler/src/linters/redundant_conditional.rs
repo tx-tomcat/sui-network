@@ -18,12 +18,12 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINT_WARNING_PREFIX, REDUNDANT_CONDITIONAL_DIAG_CODE};
+use super::{LinterDiagnosticCategory, LINT_WARNING_PREFIX, REDUNDANT_CONDITIONAL_DIAG_CODE};
 
 const REDUNDANT_CONDITIONAL_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Complexity as u8,
+    LinterDiagnosticCategory::Complexity as u8,
     REDUNDANT_CONDITIONAL_DIAG_CODE,
     "",
 );

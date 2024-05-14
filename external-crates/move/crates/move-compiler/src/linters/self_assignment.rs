@@ -17,12 +17,12 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINT_WARNING_PREFIX, SELF_ASSIGNMENT_DIAG_CODE};
+use super::{LinterDiagnosticCategory, LINT_WARNING_PREFIX, SELF_ASSIGNMENT_DIAG_CODE};
 
 const SELF_ASSIGNMENT_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Suspicious as u8,
+    LinterDiagnosticCategory::Suspicious as u8,
     SELF_ASSIGNMENT_DIAG_CODE,
     "Explicit self-assignment detected. This operation is usually unnecessary and could indicate a typo or logical error.",
 );

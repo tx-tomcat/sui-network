@@ -15,12 +15,12 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, EMPTY_ELSE_BRANCH_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, EMPTY_ELSE_BRANCH_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const EMPTY_ELSE_BRANCH_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Complexity as u8,
+    LinterDiagnosticCategory::Complexity as u8,
     EMPTY_ELSE_BRANCH_DIAG_CODE,
     "",
 );

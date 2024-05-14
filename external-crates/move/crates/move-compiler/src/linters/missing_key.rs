@@ -13,12 +13,12 @@ use crate::{
 };
 use move_ir_types::location::{Loc, Spanned};
 
-use super::{LinterDiagCategory, LINT_WARNING_PREFIX, MISSING_KEY_DIAG_CODE};
+use super::{LinterDiagnosticCategory, LINT_WARNING_PREFIX, MISSING_KEY_DIAG_CODE};
 
 const MISSING_KEY_ABILITY_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Correctness as u8,
+    LinterDiagnosticCategory::Correctness as u8,
     MISSING_KEY_DIAG_CODE,
     "Struct has an 'id' field of type 'UID' but is missing the 'key' ability.",
 );

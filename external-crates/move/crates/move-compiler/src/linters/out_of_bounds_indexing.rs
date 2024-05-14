@@ -22,12 +22,12 @@ use crate::{
 use move_ir_types::location::{Loc, Spanned};
 use std::collections::BTreeMap;
 
-use super::{LinterDiagCategory, LINT_WARNING_PREFIX, OUT_OF_BOUNDS_INDEXING_DIAG_CODE};
+use super::{LinterDiagnosticCategory, LINT_WARNING_PREFIX, OUT_OF_BOUNDS_INDEXING_DIAG_CODE};
 
 const OUT_OF_BOUNDS_INDEXING_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Correctness as u8,
+    LinterDiagnosticCategory::Correctness as u8,
     OUT_OF_BOUNDS_INDEXING_DIAG_CODE,
     "Array index out of bounds: attempting to access index {} in array '{}' with size known at compile time.",
 );

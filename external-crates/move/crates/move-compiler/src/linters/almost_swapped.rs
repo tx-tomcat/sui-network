@@ -21,12 +21,12 @@ use crate::{
 use move_ir_types::location::Loc;
 use std::collections::VecDeque;
 
-use super::{LinterDiagCategory, LINT_WARNING_PREFIX, SWAP_SEQUENCE_DIAG_CODE};
+use super::{LinterDiagnosticCategory, LINT_WARNING_PREFIX, SWAP_SEQUENCE_DIAG_CODE};
 
 const SWAP_SEQUENCE_OVERFLOW_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Correctness as u8,
+    LinterDiagnosticCategory::Correctness as u8,
     SWAP_SEQUENCE_DIAG_CODE,
     "Unnecessary swap sequence detected. Consider simplifying the code or using a temporary variable if swapping is intended.",
 );

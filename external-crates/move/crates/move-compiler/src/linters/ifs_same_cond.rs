@@ -17,12 +17,12 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, CONSECUTIVE_IFS_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, CONSECUTIVE_IFS_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const CONSECUTIVE_IFS_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Correctness as u8,
+    LinterDiagnosticCategory::Correctness as u8,
     CONSECUTIVE_IFS_DIAG_CODE,
     "Consecutive `if` statements with the same condition detected. Consider combining these statements to simplify the code.",
 );
