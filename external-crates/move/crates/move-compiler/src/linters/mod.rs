@@ -10,10 +10,10 @@ use crate::{
         abort_constant::AssertAbortNamedConstants, almost_swapped::SwapSequence,
         constant_naming::ConstantNamingVisitor, empty_loop::EmptyLoop,
         excessive_nesting::ExcessiveNesting, ifs_same_cond::ConsecutiveIfs,
-        missing_key::MissingKey, needless_else::EmptyElseBranch,
-        out_of_bounds_indexing::OutOfBoundsArrayIndexing, redundant_assert::AssertTrueFals,
-        redundant_conditional::RedundantConditional, self_assignment::SelfAssignmentCheck,
-        shift_overflow::ShiftOperationOverflow,
+        missing_key::MissingKey, multiplication_overflow::MultiplicationOverflow,
+        needless_else::EmptyElseBranch, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
+        redundant_assert::AssertTrueFals, redundant_conditional::RedundantConditional,
+        self_assignment::SelfAssignmentCheck, shift_overflow::ShiftOperationOverflow,
     },
     typing::visitor::TypingVisitor,
 };
@@ -24,6 +24,7 @@ pub mod empty_loop;
 pub mod excessive_nesting;
 pub mod ifs_same_cond;
 pub mod missing_key;
+pub mod multiplication_overflow;
 pub mod needless_else;
 pub mod out_of_bounds_indexing;
 pub mod redundant_assert;
@@ -92,6 +93,9 @@ pub const REDUNDANT_ASSERT_DIAG_CODE: u8 = 12;
 
 pub const EXCESSIVE_NESTING_FILTER_NAME: &str = "excessive_nesting";
 pub const EXCESSIVE_NESTING_DIAG_CODE: u8 = 13;
+
+pub const MULTIPLICATION_OVERFLOW_FILTER_NAME: &str = "multiplication_overflow";
+pub const MULTIPLICATION_OVERFLOW_DIAG_CODE: u8 = 14;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -175,6 +179,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 EXCESSIVE_NESTING_DIAG_CODE,
                 Some(EXCESSIVE_NESTING_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Suspicious as u8,
+                MULTIPLICATION_OVERFLOW_DIAG_CODE,
+                Some(MULTIPLICATION_OVERFLOW_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -198,6 +208,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 self_assignment::SelfAssignmentCheck::visitor(SelfAssignmentCheck),
                 redundant_assert::AssertTrueFals::visitor(AssertTrueFals),
                 excessive_nesting::ExcessiveNesting::visitor(ExcessiveNesting),
+                multiplication_overflow::MultiplicationOverflow::visitor(MultiplicationOverflow),
             ]
         }
     }

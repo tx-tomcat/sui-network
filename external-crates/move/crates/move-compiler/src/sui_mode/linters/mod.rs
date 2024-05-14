@@ -86,7 +86,7 @@ pub enum LinterDiagnosticCode {
 }
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
-    let mut filters = vec![
+    let filters = vec![
         WarningFilter::All(Some(LINT_WARNING_PREFIX)),
         WarningFilter::code(
             Some(LINT_WARNING_PREFIX),
