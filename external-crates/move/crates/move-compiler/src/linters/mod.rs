@@ -14,7 +14,8 @@ use crate::{
         excessive_nesting::ExcessiveNesting, freezing_capability::WarnFreezeCapability,
         ifs_same_cond::ConsecutiveIfs, missing_key::MissingKey,
         multiplication_overflow::MultiplicationOverflow, needless_else::EmptyElseBranch,
-        out_of_bounds_indexing::OutOfBoundsArrayIndexing, redundant_assert::AssertTrueFals,
+        out_of_bounds_indexing::OutOfBoundsArrayIndexing,
+        public_mut_tx_context::RequireMutableTxContext, redundant_assert::AssertTrueFals,
         redundant_conditional::RedundantConditional, redundant_ref_deref::RedundantRefDerefVisitor,
         self_assignment::SelfAssignmentCheck, shift_overflow::ShiftOperationOverflow,
         too_many_arguments::ExcessiveParametersCheck,
@@ -42,6 +43,8 @@ pub mod redundant_ref_deref;
 pub mod self_assignment;
 pub mod shift_overflow;
 pub mod too_many_arguments;
+
+pub mod public_mut_tx_context;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -128,6 +131,9 @@ pub const WARN_FREEZE_CAPABILITY_DIAG_CODE: u8 = 20;
 
 pub const COLLAPSIBLE_NESTED_IF_FILTER_NAME: &str = "collapsible_nested_if";
 pub const COLLAPSIBLE_NESTED_IF_DIAG_CODE: u8 = 21;
+
+pub const REQUIRE_MUTABLE_TX_CONTEXT_FILTER_NAME: &str = "public_mut_tx_context";
+pub const REQUIRE_MUTABLE_TX_CONTEXT_DIAG_CODE: u8 = 22;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -259,6 +265,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 COLLAPSIBLE_NESTED_IF_DIAG_CODE,
                 Some(COLLAPSIBLE_NESTED_IF_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Correctness as u8,
+                REQUIRE_MUTABLE_TX_CONTEXT_DIAG_CODE,
+                Some(REQUIRE_MUTABLE_TX_CONTEXT_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -290,6 +302,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 redundant_ref_deref::RedundantRefDerefVisitor::visitor(RedundantRefDerefVisitor),
                 freezing_capability::WarnFreezeCapability::visitor(WarnFreezeCapability),
                 collapsible_nested_if::CollapsibleNestedIf::visitor(CollapsibleNestedIf),
+                public_mut_tx_context::RequireMutableTxContext::visitor(RequireMutableTxContext),
             ]
         }
     }
