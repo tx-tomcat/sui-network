@@ -12,22 +12,22 @@ use crate::{
     },
     expansion::ast::{ModuleIdent, Visibility},
     naming::ast::{TypeName_, Type_},
-    parser::ast::{FunctionName, StructName},
+    parser::ast::{DatatypeName, FunctionName},
     shared::{program_info::TypingProgramInfo, CompilationEnv},
     typing::{
-        ast::{self as T},
+        ast as T,
         visitor::{TypingVisitorConstructor, TypingVisitorContext},
     },
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, LINT_WARNING_PREFIX, REQUIRE_MUTABLE_TX_CONTEXT_DIAG_CODE};
 
 const REQUIRE_MUTABLE_TX_CONTEXT_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::RequireMutableTxContext as u8,
-    LINTER_DEFAULT_DIAG_CODE,
+    LinterDiagnosticCategory::Correctness as u8,
+    REQUIRE_MUTABLE_TX_CONTEXT_DIAG_CODE,
     "",
 );
 
@@ -60,9 +60,10 @@ impl TypingVisitorContext for Context<'_> {
             for param in &fdef.signature.parameters {
                 if let Type_::Ref(false, var_type) = &param.2.value {
                     if let Type_::Apply(_, type_name, _) = &var_type.value {
-                        if let TypeName_::ModuleType(_, StructName(struct_name)) = &type_name.value
+                        if let TypeName_::ModuleType(_, DatatypeName(struct_name)) =
+                            &type_name.value
                         {
-                            if struct_name.to_string() == "TxContext" {
+                            if struct_name.value.to_string() == "TxContext" {
                                 report_non_mutable_tx_context(self.env, type_name.loc);
                             }
                         }
