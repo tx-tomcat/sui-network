@@ -11,7 +11,7 @@ use crate::{
         constant_naming::ConstantNamingVisitor, empty_loop::EmptyLoop,
         ifs_same_cond::ConsecutiveIfs, missing_key::MissingKey, needless_else::EmptyElseBranch,
         out_of_bounds_indexing::OutOfBoundsArrayIndexing,
-        redundant_conditional::RedundantConditional,
+        redundant_conditional::RedundantConditional, shift_overflow::ShiftOperationOverflow,
     },
     typing::visitor::TypingVisitor,
 };
@@ -24,6 +24,8 @@ pub mod missing_key;
 pub mod needless_else;
 pub mod out_of_bounds_indexing;
 pub mod redundant_conditional;
+pub mod shift_overflow;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -47,25 +49,38 @@ pub enum LinterDiagCategory {
 
 pub const ALLOW_ATTR_CATEGORY: &str = "lint";
 pub const LINT_WARNING_PREFIX: &str = "Lint ";
+
 pub const LINTER_DEFAULT_DIAG_CODE: u8 = 1;
+
 pub const CONSTANT_NAMING_FILTER_NAME: &str = "constant_naming";
 pub const CONSTANT_NAMING_DIAG_CODE: u8 = 1;
-pub const OUT_OF_BOUNDS_INDEXING_FILTER_NAME: &str = "out_of_bounds_indexing";
-pub const LINTER_OUT_OF_BOUNDS_INDEXING_DIAG_CODE: u8 = 12;
-pub const SWAP_SEQUENCE_FILTER_NAME: &str = "swap_sequence";
-pub const SWAP_SEQUENCE_DIAG_CODE: u8 = 8;
-pub const EMPTY_LOOP_FILTER_NAME: &str = "empty_loop";
-pub const EMPTY_LOOP_DIAG_CODE: u8 = 7;
-pub const MISSING_KEY_FILTER_NAME: &str = "missing_key";
-pub const MISSING_KEY_DIAG_CODE: u8 = 6;
+
 pub const REDUNDANT_CONDITIONAL_FILTER_NAME: &str = "redundant_conditional";
 pub const REDUNDANT_CONDITIONAL_DIAG_CODE: u8 = 2;
+
 pub const EMPTY_ELSE_BRANCH_FILTER_NAME: &str = "needless_else";
 pub const EMPTY_ELSE_BRANCH_DIAG_CODE: u8 = 3;
+
+pub const SHILF_OVERFLOW_FILTER_NAME: &str = "shift_overflow";
+pub const SHILF_OVERFLOW_DIAG_CODE: u8 = 4;
+
+pub const ABORT_CONSTANT_FILTER_NAME: &str = "abort_constant";
+pub const ABORT_CONSTANT_DIAG_CODE: u8 = 5;
+
+pub const MISSING_KEY_FILTER_NAME: &str = "missing_key";
+pub const MISSING_KEY_DIAG_CODE: u8 = 6;
+
+pub const EMPTY_LOOP_FILTER_NAME: &str = "empty_loop";
+pub const EMPTY_LOOP_DIAG_CODE: u8 = 7;
+
+pub const SWAP_SEQUENCE_FILTER_NAME: &str = "swap_sequence";
+pub const SWAP_SEQUENCE_DIAG_CODE: u8 = 8;
+
 pub const CONSECUTIVE_IFS_FILTER_NAME: &str = "consecutive_ifs";
-pub const CONSECUTIVE_IFS_DIAG_CODE: u8 = 10;
-pub const ABORT_CONSTANT_FILTER_NAME: &str = "shift_overflow";
-pub const LINTER_ABORT_CONSTANT_DIAG_CODE: u8 = 5;
+pub const CONSECUTIVE_IFS_DIAG_CODE: u8 = 9;
+
+pub const OUT_OF_BOUNDS_INDEXING_FILTER_NAME: &str = "out_of_bounds_indexing";
+pub const OUT_OF_BOUNDS_INDEXING_DIAG_CODE: u8 = 10;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -80,7 +95,7 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
             WarningFilter::code(
                 Some(LINT_WARNING_PREFIX),
                 LinterDiagCategory::Correctness as u8,
-                LINTER_OUT_OF_BOUNDS_INDEXING_DIAG_CODE,
+                OUT_OF_BOUNDS_INDEXING_DIAG_CODE,
                 Some(OUT_OF_BOUNDS_INDEXING_FILTER_NAME),
             ),
             WarningFilter::code(
@@ -122,8 +137,14 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
             WarningFilter::code(
                 Some(LINT_WARNING_PREFIX),
                 LinterDiagCategory::Style as u8,
-                LINTER_ABORT_CONSTANT_DIAG_CODE,
+                ABORT_CONSTANT_DIAG_CODE,
                 Some(ABORT_CONSTANT_FILTER_NAME),
+            ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Correctness as u8,
+                SHILF_OVERFLOW_DIAG_CODE,
+                Some(SHILF_OVERFLOW_FILTER_NAME),
             ),
         ],
     )
@@ -144,6 +165,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 needless_else::EmptyElseBranch::visitor(EmptyElseBranch),
                 ifs_same_cond::ConsecutiveIfs::visitor(ConsecutiveIfs),
                 abort_constant::AssertAbortNamedConstants::visitor(AssertAbortNamedConstants),
+                shift_overflow::ShiftOperationOverflow::visitor(ShiftOperationOverflow),
             ]
         }
     }
