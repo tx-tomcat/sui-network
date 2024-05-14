@@ -10,7 +10,7 @@ use crate::{
         abort_constant::AssertAbortNamedConstants, almost_swapped::SwapSequence,
         constant_naming::ConstantNamingVisitor, empty_loop::EmptyLoop,
         ifs_same_cond::ConsecutiveIfs, missing_key::MissingKey, needless_else::EmptyElseBranch,
-        out_of_bounds_indexing::OutOfBoundsArrayIndexing,
+        out_of_bounds_indexing::OutOfBoundsArrayIndexing, redundant_assert::AssertTrueFals,
         redundant_conditional::RedundantConditional, self_assignment::SelfAssignmentCheck,
         shift_overflow::ShiftOperationOverflow,
     },
@@ -24,6 +24,7 @@ pub mod ifs_same_cond;
 pub mod missing_key;
 pub mod needless_else;
 pub mod out_of_bounds_indexing;
+pub mod redundant_assert;
 pub mod redundant_conditional;
 pub mod self_assignment;
 pub mod shift_overflow;
@@ -83,6 +84,9 @@ pub const OUT_OF_BOUNDS_INDEXING_DIAG_CODE: u8 = 10;
 
 pub const SELF_ASSIGNMENT_FILTER_NAME: &str = "self-assignment";
 pub const SELF_ASSIGNMENT_DIAG_CODE: u8 = 11;
+
+pub const REDUNDANT_ASSERT_FILTER_NAME: &str = "redundant_assert";
+pub const REDUNDANT_ASSERT_DIAG_CODE: u8 = 12;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -154,6 +158,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 SELF_ASSIGNMENT_DIAG_CODE,
                 Some(SELF_ASSIGNMENT_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Correctness as u8,
+                REDUNDANT_ASSERT_DIAG_CODE,
+                Some(REDUNDANT_ASSERT_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -175,6 +185,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 abort_constant::AssertAbortNamedConstants::visitor(AssertAbortNamedConstants),
                 shift_overflow::ShiftOperationOverflow::visitor(ShiftOperationOverflow),
                 self_assignment::SelfAssignmentCheck::visitor(SelfAssignmentCheck),
+                redundant_assert::AssertTrueFals::visitor(AssertTrueFals),
             ]
         }
     }
