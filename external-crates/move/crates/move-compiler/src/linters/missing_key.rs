@@ -13,13 +13,13 @@ use crate::{
 };
 use move_ir_types::location::{Loc, Spanned};
 
-use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagCategory, LINT_WARNING_PREFIX, MISSING_KEY_DIAG_CODE};
 
 const MISSING_KEY_ABILITY_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::MissingKey as u8,
-    LINTER_DEFAULT_DIAG_CODE,
+    LinterDiagCategory::Correctness as u8,
+    MISSING_KEY_DIAG_CODE,
     "Struct has an 'id' field of type 'UID' but is missing the 'key' ability.",
 );
 
@@ -46,7 +46,7 @@ impl TypingVisitor for MissingKey {
 
 fn check_key_abilities(env: &mut CompilationEnv, sdef: &StructDefinition, sloc: Loc) {
     let has_id_field_of_type_uid = match &sdef.fields {
-        StructFields::Defined(fields) => {
+        StructFields::Defined(_, fields) => {
             fields.iter().any(
                 |(_, symbol, ftype)| {
                     if symbol.as_str() == "id" {
