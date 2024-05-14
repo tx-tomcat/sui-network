@@ -20,13 +20,13 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINTER_DOUBLE_COMPARISON_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, IMPOSSIBLE_COMPARISON_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const DOUBLE_COMPARISON_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Correctness as u8,
-    LINTER_DOUBLE_COMPARISON_DIAG_CODE,
+    LinterDiagnosticCategory::Correctness as u8,
+    IMPOSSIBLE_COMPARISON_DIAG_CODE,
     "Detected a double comparison that can never succeed, indicating a possible logical error.",
 );
 
