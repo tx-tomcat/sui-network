@@ -18,7 +18,7 @@ use crate::{
         public_mut_tx_context::RequireMutableTxContext, redundant_assert::AssertTrueFals,
         redundant_conditional::RedundantConditional, redundant_ref_deref::RedundantRefDerefVisitor,
         self_assignment::SelfAssignmentCheck, shift_overflow::ShiftOperationOverflow,
-        too_many_arguments::ExcessiveParametersCheck,
+        too_many_arguments::ExcessiveParametersCheck, unnecessary_while_loop::WhileTrueToLoop,
     },
     typing::visitor::TypingVisitor,
 };
@@ -37,14 +37,14 @@ pub mod missing_key;
 pub mod multiplication_overflow;
 pub mod needless_else;
 pub mod out_of_bounds_indexing;
+pub mod public_mut_tx_context;
 pub mod redundant_assert;
 pub mod redundant_conditional;
 pub mod redundant_ref_deref;
 pub mod self_assignment;
 pub mod shift_overflow;
 pub mod too_many_arguments;
-
-pub mod public_mut_tx_context;
+pub mod unnecessary_while_loop;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -134,6 +134,9 @@ pub const COLLAPSIBLE_NESTED_IF_DIAG_CODE: u8 = 21;
 
 pub const REQUIRE_MUTABLE_TX_CONTEXT_FILTER_NAME: &str = "public_mut_tx_context";
 pub const REQUIRE_MUTABLE_TX_CONTEXT_DIAG_CODE: u8 = 22;
+
+pub const WHILE_TRUE_TO_LOOP_FILTER_NAME: &str = "unnecessary_while_loop";
+pub const WHILE_TRUE_TO_LOOP_DIAG_CODE: u8 = 23;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -271,6 +274,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 REQUIRE_MUTABLE_TX_CONTEXT_DIAG_CODE,
                 Some(REQUIRE_MUTABLE_TX_CONTEXT_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Style as u8,
+                WHILE_TRUE_TO_LOOP_DIAG_CODE,
+                Some(WHILE_TRUE_TO_LOOP_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -303,6 +312,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 freezing_capability::WarnFreezeCapability::visitor(WarnFreezeCapability),
                 collapsible_nested_if::CollapsibleNestedIf::visitor(CollapsibleNestedIf),
                 public_mut_tx_context::RequireMutableTxContext::visitor(RequireMutableTxContext),
+                unnecessary_while_loop::WhileTrueToLoop::visitor(WhileTrueToLoop),
             ]
         }
     }
