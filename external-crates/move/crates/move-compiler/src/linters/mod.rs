@@ -8,8 +8,8 @@ use crate::{
     diagnostics::codes::WarningFilter,
     linters::{
         abort_constant::AssertAbortNamedConstants, almost_swapped::SwapSequence,
-        constant_naming::ConstantNamingVisitor, empty_loop::EmptyLoop,
-        excessive_nesting::ExcessiveNesting, ifs_same_cond::ConsecutiveIfs,
+        constant_naming::ConstantNamingVisitor, double_comparisons::DoubleComparisonCheck,
+        empty_loop::EmptyLoop, excessive_nesting::ExcessiveNesting, ifs_same_cond::ConsecutiveIfs,
         missing_key::MissingKey, multiplication_overflow::MultiplicationOverflow,
         needless_else::EmptyElseBranch, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
         redundant_assert::AssertTrueFals, redundant_conditional::RedundantConditional,
@@ -21,6 +21,7 @@ use crate::{
 pub mod abort_constant;
 pub mod almost_swapped;
 pub mod constant_naming;
+pub mod double_comparisons;
 pub mod empty_loop;
 pub mod excessive_nesting;
 pub mod ifs_same_cond;
@@ -101,6 +102,9 @@ pub const MULTIPLICATION_OVERFLOW_DIAG_CODE: u8 = 14;
 
 pub const EXCESSIVE_PARAMS_FILTER_NAME: &str = "excessive_params";
 pub const EXCESSIVE_PARAMS_DIAG_CODE: u8 = 15;
+
+pub const DOUBLE_COMPARISON_FILTER_NAME: &str = "double_comparison";
+pub const DOUBLE_COMPARISON_DIAG_CODE: u8 = 16;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -196,6 +200,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 EXCESSIVE_PARAMS_DIAG_CODE,
                 Some(EXCESSIVE_PARAMS_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Complexity as u8,
+                DOUBLE_COMPARISON_DIAG_CODE,
+                Some(DOUBLE_COMPARISON_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -221,6 +231,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 excessive_nesting::ExcessiveNesting::visitor(ExcessiveNesting),
                 multiplication_overflow::MultiplicationOverflow::visitor(MultiplicationOverflow),
                 too_many_arguments::ExcessiveParametersCheck::visitor(ExcessiveParametersCheck),
+                double_comparisons::DoubleComparisonCheck::visitor(DoubleComparisonCheck),
             ]
         }
     }
