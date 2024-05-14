@@ -20,12 +20,12 @@ use crate::{
 };
 use move_ir_types::location::*;
 
-use super::{LinterDiagCategory, LINT_WARNING_PREFIX, WARN_FREEZE_CAPABILITY_DIAG_CODE};
+use super::{LinterDiagnosticCategory, LINT_WARNING_PREFIX, WARN_FREEZE_CAPABILITY_DIAG_CODE};
 
 const FREEZE_WRAPPING_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Suspicous as u8,
+    LinterDiagnosticCategory::Suspicious as u8,
     WARN_FREEZE_CAPABILITY_DIAG_CODE,
     "Freezing a capability-like type can lead to design issues.",
 );
