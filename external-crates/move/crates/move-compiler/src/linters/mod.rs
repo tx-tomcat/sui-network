@@ -18,7 +18,8 @@ use crate::{
         public_mut_tx_context::RequireMutableTxContext, redundant_assert::AssertTrueFals,
         redundant_conditional::RedundantConditional, redundant_ref_deref::RedundantRefDerefVisitor,
         self_assignment::SelfAssignmentCheck, shift_overflow::ShiftOperationOverflow,
-        too_many_arguments::ExcessiveParametersCheck, unnecessary_while_loop::WhileTrueToLoop,
+        too_many_arguments::ExcessiveParametersCheck,
+        unnecessary_mut_params::UnusedMutableParamsCheck, unnecessary_while_loop::WhileTrueToLoop,
     },
     typing::visitor::TypingVisitor,
 };
@@ -47,6 +48,8 @@ pub mod too_many_arguments;
 pub mod unnecessary_while_loop;
 
 pub mod impossible_comparisons;
+
+pub mod unnecessary_mut_params;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -142,6 +145,9 @@ pub const WHILE_TRUE_TO_LOOP_DIAG_CODE: u8 = 23;
 
 pub const IMPOSSIBLE_COMPARISON_FILTER_NAME: &str = "impossible_comparison";
 pub const IMPOSSIBLE_COMPARISON_DIAG_CODE: u8 = 24;
+
+pub const UNUSED_MUT_PARAMS_FILTER_NAME: &str = "unused_mut_params";
+pub const UNUSED_MUT_PARAMS_DIAG_CODE: u8 = 25;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -291,6 +297,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 IMPOSSIBLE_COMPARISON_DIAG_CODE,
                 Some(IMPOSSIBLE_COMPARISON_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Suspicious as u8,
+                UNUSED_MUT_PARAMS_DIAG_CODE,
+                Some(UNUSED_MUT_PARAMS_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -327,6 +339,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 impossible_comparisons::ImpossibleDoubleComparison::visitor(
                     ImpossibleDoubleComparison,
                 ),
+                unnecessary_mut_params::UnusedMutableParamsCheck::visitor(UnusedMutableParamsCheck),
             ]
         }
     }
