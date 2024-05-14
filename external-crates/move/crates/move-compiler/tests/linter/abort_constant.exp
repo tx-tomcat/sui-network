@@ -1,0 +1,40 @@
+warning[W09002]: unused variable
+  ┌─ tests/linter/abort_constant.move:5:40
+  │
+5 │     fun test_lint_abort_incorrect_code(x: u64) {
+  │                                        ^ Unused parameter 'x'. Consider removing or prefixing with an underscore: '_x'
+  │
+  = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00005]: Prefer using named constants with 'abort' and 'assert' for clarity
+  ┌─ tests/linter/abort_constant.move:6:15
+  │
+6 │         abort 100
+  │               ^^^ Prefer using a named constant.
+  │
+  = This warning can be suppressed with '#[allow(lint(shift_overflow))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[W09002]: unused variable
+  ┌─ tests/linter/abort_constant.move:9:41
+  │
+9 │     fun test_lint_assert_incorrect_code(x: u64) {
+  │                                         ^ Unused parameter 'x'. Consider removing or prefixing with an underscore: '_x'
+  │
+  = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W00005]: Prefer using named constants with 'abort' and 'assert' for clarity
+   ┌─ tests/linter/abort_constant.move:11:16
+   │
+11 │         assert!(x == false, 2);
+   │                ^^^^^^^^^^^^^^^ Prefer using a named constant.
+   │
+   = This warning can be suppressed with '#[allow(lint(shift_overflow))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[W09002]: unused variable
+   ┌─ tests/linter/abort_constant.move:20:14
+   │
+20 │          let x = true;
+   │              ^ Unused local variable 'x'. Consider removing or prefixing with an underscore: '_x'
+   │
+   = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+

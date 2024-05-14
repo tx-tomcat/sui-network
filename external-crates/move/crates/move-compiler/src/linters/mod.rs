@@ -7,13 +7,15 @@ use crate::{
     command_line::compiler::Visitor,
     diagnostics::codes::WarningFilter,
     linters::{
-        almost_swapped::SwapSequence, constant_naming::ConstantNamingVisitor,
-        empty_loop::EmptyLoop, ifs_same_cond::ConsecutiveIfs, missing_key::MissingKey,
-        needless_else::EmptyElseBranch, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
+        abort_constant::AssertAbortNamedConstants, almost_swapped::SwapSequence,
+        constant_naming::ConstantNamingVisitor, empty_loop::EmptyLoop,
+        ifs_same_cond::ConsecutiveIfs, missing_key::MissingKey, needless_else::EmptyElseBranch,
+        out_of_bounds_indexing::OutOfBoundsArrayIndexing,
         redundant_conditional::RedundantConditional,
     },
     typing::visitor::TypingVisitor,
 };
+pub mod abort_constant;
 pub mod almost_swapped;
 pub mod constant_naming;
 pub mod empty_loop;
@@ -62,6 +64,8 @@ pub const EMPTY_ELSE_BRANCH_FILTER_NAME: &str = "needless_else";
 pub const EMPTY_ELSE_BRANCH_DIAG_CODE: u8 = 3;
 pub const CONSECUTIVE_IFS_FILTER_NAME: &str = "consecutive_ifs";
 pub const CONSECUTIVE_IFS_DIAG_CODE: u8 = 10;
+pub const ABORT_CONSTANT_FILTER_NAME: &str = "shift_overflow";
+pub const LINTER_ABORT_CONSTANT_DIAG_CODE: u8 = 5;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -115,6 +119,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 CONSECUTIVE_IFS_DIAG_CODE,
                 Some(CONSECUTIVE_IFS_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Style as u8,
+                LINTER_ABORT_CONSTANT_DIAG_CODE,
+                Some(ABORT_CONSTANT_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -133,6 +143,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 redundant_conditional::RedundantConditional::visitor(RedundantConditional),
                 needless_else::EmptyElseBranch::visitor(EmptyElseBranch),
                 ifs_same_cond::ConsecutiveIfs::visitor(ConsecutiveIfs),
+                abort_constant::AssertAbortNamedConstants::visitor(AssertAbortNamedConstants),
             ]
         }
     }
