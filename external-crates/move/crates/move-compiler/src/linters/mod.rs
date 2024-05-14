@@ -8,9 +8,9 @@ use crate::{
     diagnostics::codes::WarningFilter,
     linters::{
         abort_constant::AssertAbortNamedConstants, almost_swapped::SwapSequence,
-        bool_comparison::BoolComparison, constant_naming::ConstantNamingVisitor,
-        double_comparisons::DoubleComparisonCheck, empty_loop::EmptyLoop,
-        excessive_nesting::ExcessiveNesting, ifs_same_cond::ConsecutiveIfs,
+        bool_comparison::BoolComparison, collapsible_else_if::CollapsibleElseIf,
+        constant_naming::ConstantNamingVisitor, double_comparisons::DoubleComparisonCheck,
+        empty_loop::EmptyLoop, excessive_nesting::ExcessiveNesting, ifs_same_cond::ConsecutiveIfs,
         missing_key::MissingKey, multiplication_overflow::MultiplicationOverflow,
         needless_else::EmptyElseBranch, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
         redundant_assert::AssertTrueFals, redundant_conditional::RedundantConditional,
@@ -22,6 +22,7 @@ use crate::{
 pub mod abort_constant;
 pub mod almost_swapped;
 pub mod bool_comparison;
+pub mod collapsible_else_if;
 pub mod constant_naming;
 pub mod double_comparisons;
 pub mod empty_loop;
@@ -110,6 +111,9 @@ pub const DOUBLE_COMPARISON_DIAG_CODE: u8 = 16;
 
 pub const BOOL_COMPARISON_FILTER_NAME: &str = "bool_comparison";
 pub const BOOL_COMPARISON_DIAG_CODE: u8 = 17;
+
+pub const COLLAPSIBLE_ELSE_FILTER_NAME: &str = "collapsible_else_if";
+pub const COLLAPSIBLE_ELSE_DIAG_CODE: u8 = 18;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -217,6 +221,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 BOOL_COMPARISON_DIAG_CODE,
                 Some(BOOL_COMPARISON_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Style as u8,
+                COLLAPSIBLE_ELSE_DIAG_CODE,
+                Some(COLLAPSIBLE_ELSE_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -244,6 +254,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 too_many_arguments::ExcessiveParametersCheck::visitor(ExcessiveParametersCheck),
                 double_comparisons::DoubleComparisonCheck::visitor(DoubleComparisonCheck),
                 bool_comparison::BoolComparison::visitor(BoolComparison),
+                collapsible_else_if::CollapsibleElseIf::visitor(CollapsibleElseIf),
             ]
         }
     }
