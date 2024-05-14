@@ -14,6 +14,7 @@ use crate::{
         needless_else::EmptyElseBranch, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
         redundant_assert::AssertTrueFals, redundant_conditional::RedundantConditional,
         self_assignment::SelfAssignmentCheck, shift_overflow::ShiftOperationOverflow,
+        too_many_arguments::ExcessiveParametersCheck,
     },
     typing::visitor::TypingVisitor,
 };
@@ -31,6 +32,7 @@ pub mod redundant_assert;
 pub mod redundant_conditional;
 pub mod self_assignment;
 pub mod shift_overflow;
+pub mod too_many_arguments;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -96,6 +98,9 @@ pub const EXCESSIVE_NESTING_DIAG_CODE: u8 = 13;
 
 pub const MULTIPLICATION_OVERFLOW_FILTER_NAME: &str = "multiplication_overflow";
 pub const MULTIPLICATION_OVERFLOW_DIAG_CODE: u8 = 14;
+
+pub const EXCESSIVE_PARAMS_FILTER_NAME: &str = "excessive_params";
+pub const EXCESSIVE_PARAMS_DIAG_CODE: u8 = 15;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -185,6 +190,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 MULTIPLICATION_OVERFLOW_DIAG_CODE,
                 Some(MULTIPLICATION_OVERFLOW_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Complexity as u8,
+                EXCESSIVE_PARAMS_DIAG_CODE,
+                Some(EXCESSIVE_PARAMS_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -209,6 +220,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 redundant_assert::AssertTrueFals::visitor(AssertTrueFals),
                 excessive_nesting::ExcessiveNesting::visitor(ExcessiveNesting),
                 multiplication_overflow::MultiplicationOverflow::visitor(MultiplicationOverflow),
+                too_many_arguments::ExcessiveParametersCheck::visitor(ExcessiveParametersCheck),
             ]
         }
     }
