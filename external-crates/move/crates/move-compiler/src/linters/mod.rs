@@ -9,14 +9,15 @@ use crate::{
     linters::{
         abort_constant::AssertAbortNamedConstants, almost_swapped::SwapSequence,
         bool_comparison::BoolComparison, collapsible_else_if::CollapsibleElseIf,
-        constant_naming::ConstantNamingVisitor, double_comparisons::DoubleComparisonCheck,
-        empty_loop::EmptyLoop, excessive_nesting::ExcessiveNesting,
-        freezing_capability::WarnFreezeCapability, ifs_same_cond::ConsecutiveIfs,
-        missing_key::MissingKey, multiplication_overflow::MultiplicationOverflow,
-        needless_else::EmptyElseBranch, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
-        redundant_assert::AssertTrueFals, redundant_conditional::RedundantConditional,
-        redundant_ref_deref::RedundantRefDerefVisitor, self_assignment::SelfAssignmentCheck,
-        shift_overflow::ShiftOperationOverflow, too_many_arguments::ExcessiveParametersCheck,
+        collapsible_nested_if::CollapsibleNestedIf, constant_naming::ConstantNamingVisitor,
+        double_comparisons::DoubleComparisonCheck, empty_loop::EmptyLoop,
+        excessive_nesting::ExcessiveNesting, freezing_capability::WarnFreezeCapability,
+        ifs_same_cond::ConsecutiveIfs, missing_key::MissingKey,
+        multiplication_overflow::MultiplicationOverflow, needless_else::EmptyElseBranch,
+        out_of_bounds_indexing::OutOfBoundsArrayIndexing, redundant_assert::AssertTrueFals,
+        redundant_conditional::RedundantConditional, redundant_ref_deref::RedundantRefDerefVisitor,
+        self_assignment::SelfAssignmentCheck, shift_overflow::ShiftOperationOverflow,
+        too_many_arguments::ExcessiveParametersCheck,
     },
     typing::visitor::TypingVisitor,
 };
@@ -24,6 +25,7 @@ pub mod abort_constant;
 pub mod almost_swapped;
 pub mod bool_comparison;
 pub mod collapsible_else_if;
+pub mod collapsible_nested_if;
 pub mod constant_naming;
 pub mod double_comparisons;
 pub mod empty_loop;
@@ -123,6 +125,9 @@ pub const REDUNDANT_REF_DEREF_DIAG_CODE: u8 = 19;
 
 pub const WARN_FREEZE_CAPABILITY_FILTER_NAME: &str = "freezing_capability";
 pub const WARN_FREEZE_CAPABILITY_DIAG_CODE: u8 = 20;
+
+pub const COLLAPSIBLE_NESTED_IF_FILTER_NAME: &str = "collapsible_nested_if";
+pub const COLLAPSIBLE_NESTED_IF_DIAG_CODE: u8 = 21;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -248,6 +253,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 WARN_FREEZE_CAPABILITY_DIAG_CODE,
                 Some(WARN_FREEZE_CAPABILITY_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Style as u8,
+                COLLAPSIBLE_NESTED_IF_DIAG_CODE,
+                Some(COLLAPSIBLE_NESTED_IF_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -278,6 +289,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 collapsible_else_if::CollapsibleElseIf::visitor(CollapsibleElseIf),
                 redundant_ref_deref::RedundantRefDerefVisitor::visitor(RedundantRefDerefVisitor),
                 freezing_capability::WarnFreezeCapability::visitor(WarnFreezeCapability),
+                collapsible_nested_if::CollapsibleNestedIf::visitor(CollapsibleNestedIf),
             ]
         }
     }
