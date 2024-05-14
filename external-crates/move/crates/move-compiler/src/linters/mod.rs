@@ -12,9 +12,9 @@ use crate::{
         collapsible_nested_if::CollapsibleNestedIf, constant_naming::ConstantNamingVisitor,
         double_comparisons::DoubleComparisonCheck, empty_loop::EmptyLoop,
         excessive_nesting::ExcessiveNesting, freezing_capability::WarnFreezeCapability,
-        ifs_same_cond::ConsecutiveIfs, missing_key::MissingKey,
-        multiplication_overflow::MultiplicationOverflow, needless_else::EmptyElseBranch,
-        out_of_bounds_indexing::OutOfBoundsArrayIndexing,
+        ifs_same_cond::ConsecutiveIfs, impossible_comparisons::ImpossibleDoubleComparison,
+        missing_key::MissingKey, multiplication_overflow::MultiplicationOverflow,
+        needless_else::EmptyElseBranch, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
         public_mut_tx_context::RequireMutableTxContext, redundant_assert::AssertTrueFals,
         redundant_conditional::RedundantConditional, redundant_ref_deref::RedundantRefDerefVisitor,
         self_assignment::SelfAssignmentCheck, shift_overflow::ShiftOperationOverflow,
@@ -45,6 +45,8 @@ pub mod self_assignment;
 pub mod shift_overflow;
 pub mod too_many_arguments;
 pub mod unnecessary_while_loop;
+
+pub mod impossible_comparisons;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -137,6 +139,9 @@ pub const REQUIRE_MUTABLE_TX_CONTEXT_DIAG_CODE: u8 = 22;
 
 pub const WHILE_TRUE_TO_LOOP_FILTER_NAME: &str = "unnecessary_while_loop";
 pub const WHILE_TRUE_TO_LOOP_DIAG_CODE: u8 = 23;
+
+pub const IMPOSSIBLE_COMPARISON_FILTER_NAME: &str = "impossible_comparison";
+pub const IMPOSSIBLE_COMPARISON_DIAG_CODE: u8 = 24;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -280,6 +285,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 WHILE_TRUE_TO_LOOP_DIAG_CODE,
                 Some(WHILE_TRUE_TO_LOOP_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Correctness as u8,
+                IMPOSSIBLE_COMPARISON_DIAG_CODE,
+                Some(IMPOSSIBLE_COMPARISON_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -313,6 +324,9 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 collapsible_nested_if::CollapsibleNestedIf::visitor(CollapsibleNestedIf),
                 public_mut_tx_context::RequireMutableTxContext::visitor(RequireMutableTxContext),
                 unnecessary_while_loop::WhileTrueToLoop::visitor(WhileTrueToLoop),
+                impossible_comparisons::ImpossibleDoubleComparison::visitor(
+                    ImpossibleDoubleComparison,
+                ),
             ]
         }
     }
