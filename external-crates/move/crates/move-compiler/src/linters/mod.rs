@@ -11,7 +11,8 @@ use crate::{
         constant_naming::ConstantNamingVisitor, empty_loop::EmptyLoop,
         ifs_same_cond::ConsecutiveIfs, missing_key::MissingKey, needless_else::EmptyElseBranch,
         out_of_bounds_indexing::OutOfBoundsArrayIndexing,
-        redundant_conditional::RedundantConditional, shift_overflow::ShiftOperationOverflow,
+        redundant_conditional::RedundantConditional, self_assignment::SelfAssignmentCheck,
+        shift_overflow::ShiftOperationOverflow,
     },
     typing::visitor::TypingVisitor,
 };
