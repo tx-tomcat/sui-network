@@ -11,6 +11,7 @@ use crate::{
     },
     typing::visitor::TypingVisitor,
 };
+pub mod almost_swapped;
 pub mod constant_naming;
 pub mod out_of_bounds_indexing;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -40,6 +41,8 @@ pub const CONSTANT_NAMING_FILTER_NAME: &str = "constant_naming";
 pub const CONSTANT_NAMING_DIAG_CODE: u8 = 1;
 pub const OUT_OF_BOUNDS_INDEXING_FILTER_NAME: &str = "out_of_bounds_indexing";
 pub const LINTER_OUT_OF_BOUNDS_INDEXING_DIAG_CODE: u8 = 12;
+pub const SWAP_SEQUENCE_FILTER_NAME: &str = "swap_sequence";
+pub const SWAP_SEQUENCE_DIAG_CODE: u8 = 8;
 
 pub enum LinterDiagCategory {
     Correctness,
@@ -62,6 +65,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 LINTER_OUT_OF_BOUNDS_INDEXING_DIAG_CODE,
                 Some(OUT_OF_BOUNDS_INDEXING_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Correctness as u8,
+                SWAP_SEQUENCE_DIAG_CODE,
+                Some(SWAP_SEQUENCE_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -74,6 +83,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
             vec![
                 constant_naming::ConstantNamingVisitor::visitor(ConstantNamingVisitor),
                 out_of_bounds_indexing::OutOfBoundsArrayIndexing::visitor(OutOfBoundsArrayIndexing),
+                almost_swapped::SwapSequence::visitor(SwapSequence),
             ]
         }
     }
