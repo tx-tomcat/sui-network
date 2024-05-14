@@ -9,7 +9,8 @@ use crate::{
     linters::{
         abort_constant::AssertAbortNamedConstants, almost_swapped::SwapSequence,
         constant_naming::ConstantNamingVisitor, empty_loop::EmptyLoop,
-        ifs_same_cond::ConsecutiveIfs, missing_key::MissingKey, needless_else::EmptyElseBranch,
+        excessive_nesting::ExcessiveNesting, ifs_same_cond::ConsecutiveIfs,
+        missing_key::MissingKey, needless_else::EmptyElseBranch,
         out_of_bounds_indexing::OutOfBoundsArrayIndexing, redundant_assert::AssertTrueFals,
         redundant_conditional::RedundantConditional, self_assignment::SelfAssignmentCheck,
         shift_overflow::ShiftOperationOverflow,
@@ -20,6 +21,7 @@ pub mod abort_constant;
 pub mod almost_swapped;
 pub mod constant_naming;
 pub mod empty_loop;
+pub mod excessive_nesting;
 pub mod ifs_same_cond;
 pub mod missing_key;
 pub mod needless_else;
@@ -87,6 +89,9 @@ pub const SELF_ASSIGNMENT_DIAG_CODE: u8 = 11;
 
 pub const REDUNDANT_ASSERT_FILTER_NAME: &str = "redundant_assert";
 pub const REDUNDANT_ASSERT_DIAG_CODE: u8 = 12;
+
+pub const EXCESSIVE_NESTING_FILTER_NAME: &str = "excessive_nesting";
+pub const EXCESSIVE_NESTING_DIAG_CODE: u8 = 13;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -164,6 +169,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 REDUNDANT_ASSERT_DIAG_CODE,
                 Some(REDUNDANT_ASSERT_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Complexity as u8,
+                EXCESSIVE_NESTING_DIAG_CODE,
+                Some(EXCESSIVE_NESTING_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -186,6 +197,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 shift_overflow::ShiftOperationOverflow::visitor(ShiftOperationOverflow),
                 self_assignment::SelfAssignmentCheck::visitor(SelfAssignmentCheck),
                 redundant_assert::AssertTrueFals::visitor(AssertTrueFals),
+                excessive_nesting::ExcessiveNesting::visitor(ExcessiveNesting),
             ]
         }
     }
