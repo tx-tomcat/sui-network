@@ -8,8 +8,8 @@ use crate::{
     diagnostics::codes::WarningFilter,
     linters::{
         almost_swapped::SwapSequence, constant_naming::ConstantNamingVisitor,
-        empty_loop::EmptyLoop, missing_key::MissingKey, needless_else::EmptyElseBranch,
-        out_of_bounds_indexing::OutOfBoundsArrayIndexing,
+        empty_loop::EmptyLoop, ifs_same_cond::ConsecutiveIfs, missing_key::MissingKey,
+        needless_else::EmptyElseBranch, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
         redundant_conditional::RedundantConditional,
     },
     typing::visitor::TypingVisitor,
@@ -17,6 +17,7 @@ use crate::{
 pub mod almost_swapped;
 pub mod constant_naming;
 pub mod empty_loop;
+pub mod ifs_same_cond;
 pub mod missing_key;
 pub mod needless_else;
 pub mod out_of_bounds_indexing;
@@ -44,6 +45,7 @@ pub enum LinterDiagCategory {
 
 pub const ALLOW_ATTR_CATEGORY: &str = "lint";
 pub const LINT_WARNING_PREFIX: &str = "Lint ";
+pub const LINTER_DEFAULT_DIAG_CODE: u8 = 1;
 pub const CONSTANT_NAMING_FILTER_NAME: &str = "constant_naming";
 pub const CONSTANT_NAMING_DIAG_CODE: u8 = 1;
 pub const OUT_OF_BOUNDS_INDEXING_FILTER_NAME: &str = "out_of_bounds_indexing";
@@ -58,6 +60,8 @@ pub const REDUNDANT_CONDITIONAL_FILTER_NAME: &str = "redundant_conditional";
 pub const REDUNDANT_CONDITIONAL_DIAG_CODE: u8 = 2;
 pub const EMPTY_ELSE_BRANCH_FILTER_NAME: &str = "needless_else";
 pub const EMPTY_ELSE_BRANCH_DIAG_CODE: u8 = 3;
+pub const CONSECUTIVE_IFS_FILTER_NAME: &str = "consecutive_ifs";
+pub const CONSECUTIVE_IFS_DIAG_CODE: u8 = 10;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -105,6 +109,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 EMPTY_ELSE_BRANCH_DIAG_CODE,
                 Some(EMPTY_ELSE_BRANCH_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Correctness as u8,
+                CONSECUTIVE_IFS_DIAG_CODE,
+                Some(CONSECUTIVE_IFS_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -122,6 +132,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 missing_key::MissingKey::visitor(MissingKey),
                 redundant_conditional::RedundantConditional::visitor(RedundantConditional),
                 needless_else::EmptyElseBranch::visitor(EmptyElseBranch),
+                ifs_same_cond::ConsecutiveIfs::visitor(ConsecutiveIfs),
             ]
         }
     }
