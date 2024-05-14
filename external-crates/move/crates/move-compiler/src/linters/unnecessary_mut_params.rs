@@ -22,13 +22,13 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINTER_UNUSED_MUT_PARAMS_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, LINT_WARNING_PREFIX, UNUSED_MUT_PARAMS_DIAG_CODE};
 
 const UNUSED_MUT_PARAMS_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Suspicious as u8,
-    LINTER_UNUSED_MUT_PARAMS_DIAG_CODE,
+    LinterDiagnosticCategory::Suspicious as u8,
+    UNUSED_MUT_PARAMS_DIAG_CODE,
     "Detected a mutable parameter that is never modified or passed as mutable. Consider removing the 'mut' qualifier.",
 );
 
