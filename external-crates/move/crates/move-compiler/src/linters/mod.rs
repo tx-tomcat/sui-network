@@ -10,6 +10,7 @@ use crate::{
         almost_swapped::SwapSequence, constant_naming::ConstantNamingVisitor,
         empty_loop::EmptyLoop, missing_key::MissingKey,
         out_of_bounds_indexing::OutOfBoundsArrayIndexing,
+        redundant_conditional::RedundantConditional,
     },
     typing::visitor::TypingVisitor,
 };
@@ -18,7 +19,7 @@ pub mod constant_naming;
 pub mod empty_loop;
 pub mod missing_key;
 pub mod out_of_bounds_indexing;
-
+pub mod redundant_conditional;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -52,6 +53,8 @@ pub const EMPTY_LOOP_FILTER_NAME: &str = "empty_loop";
 pub const EMPTY_LOOP_DIAG_CODE: u8 = 7;
 pub const MISSING_KEY_FILTER_NAME: &str = "missing_key";
 pub const MISSING_KEY_DIAG_CODE: u8 = 6;
+pub const REDUNDANT_CONDITIONAL_FILTER_NAME: &str = "redundant_conditional";
+pub const REDUNDANT_CONDITIONAL_DIAG_CODE: u8 = 2;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -87,6 +90,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 MISSING_KEY_DIAG_CODE,
                 Some(MISSING_KEY_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Complexity as u8,
+                REDUNDANT_CONDITIONAL_DIAG_CODE,
+                Some(REDUNDANT_CONDITIONAL_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -102,6 +111,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 almost_swapped::SwapSequence::visitor(SwapSequence),
                 empty_loop::EmptyLoop::visitor(EmptyLoop),
                 missing_key::MissingKey::visitor(MissingKey),
+                redundant_conditional::RedundantConditional::visitor(RedundantConditional),
             ]
         }
     }
