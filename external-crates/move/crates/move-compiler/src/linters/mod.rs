@@ -8,13 +8,15 @@ use crate::{
     diagnostics::codes::WarningFilter,
     linters::{
         almost_swapped::SwapSequence, constant_naming::ConstantNamingVisitor,
-        empty_loop::EmptyLoop, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
+        empty_loop::EmptyLoop, missing_key::MissingKey,
+        out_of_bounds_indexing::OutOfBoundsArrayIndexing,
     },
     typing::visitor::TypingVisitor,
 };
 pub mod almost_swapped;
 pub mod constant_naming;
 pub mod empty_loop;
+pub mod missing_key;
 pub mod out_of_bounds_indexing;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -29,7 +31,7 @@ pub enum LintLevel {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
-pub enum LinterDiagnosticCategory {
+pub enum LinterDiagCategory {
     Correctness,
     Complexity,
     Suspicious,
@@ -48,11 +50,8 @@ pub const SWAP_SEQUENCE_FILTER_NAME: &str = "swap_sequence";
 pub const SWAP_SEQUENCE_DIAG_CODE: u8 = 8;
 pub const EMPTY_LOOP_FILTER_NAME: &str = "empty_loop";
 pub const EMPTY_LOOP_DIAG_CODE: u8 = 7;
-
-pub enum LinterDiagCategory {
-    Correctness,
-    Style,
-}
+pub const MISSING_KEY_FILTER_NAME: &str = "missing_key";
+pub const MISSING_KEY_DIAG_CODE: u8 = 6;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -82,6 +81,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 EMPTY_LOOP_DIAG_CODE,
                 Some(EMPTY_LOOP_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Correctness as u8,
+                MISSING_KEY_DIAG_CODE,
+                Some(MISSING_KEY_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -96,6 +101,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 out_of_bounds_indexing::OutOfBoundsArrayIndexing::visitor(OutOfBoundsArrayIndexing),
                 almost_swapped::SwapSequence::visitor(SwapSequence),
                 empty_loop::EmptyLoop::visitor(EmptyLoop),
+                missing_key::MissingKey::visitor(MissingKey),
             ]
         }
     }
