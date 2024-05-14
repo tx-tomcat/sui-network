@@ -19,7 +19,7 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagCategory, EXCESSIVE_PARAMS_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const MAX_PARAMETERS: usize = 5; // Recommended limit for parameters
 
@@ -27,7 +27,7 @@ const EXCESSIVE_PARAMS_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
     LinterDiagCategory::Complexity as u8,
-    LINTER_DEFAULT_DIAG_CODE,
+    EXCESSIVE_PARAMS_DIAG_CODE,
     "Function has too many parameters, which may hinder readability and maintainability.",
 );
 
