@@ -15,13 +15,13 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, COLLAPSIBLE_NESTED_IF_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const COLLAPSIBLE_NESTED_IF_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::CollapsibleNestedIf as u8,
-    LINTER_DEFAULT_DIAG_CODE,
+    LinterDiagnosticCategory::Style as u8,
+    COLLAPSIBLE_NESTED_IF_DIAG_CODE,
     "",
 );
 
