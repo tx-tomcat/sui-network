@@ -7,13 +7,16 @@ use crate::{
     command_line::compiler::Visitor,
     diagnostics::codes::WarningFilter,
     linters::{
-        constant_naming::ConstantNamingVisitor, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
+        almost_swapped::SwapSequence, constant_naming::ConstantNamingVisitor,
+        empty_loop::EmptyLoop, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
     },
     typing::visitor::TypingVisitor,
 };
 pub mod almost_swapped;
 pub mod constant_naming;
+pub mod empty_loop;
 pub mod out_of_bounds_indexing;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -43,6 +46,8 @@ pub const OUT_OF_BOUNDS_INDEXING_FILTER_NAME: &str = "out_of_bounds_indexing";
 pub const LINTER_OUT_OF_BOUNDS_INDEXING_DIAG_CODE: u8 = 12;
 pub const SWAP_SEQUENCE_FILTER_NAME: &str = "swap_sequence";
 pub const SWAP_SEQUENCE_DIAG_CODE: u8 = 8;
+pub const EMPTY_LOOP_FILTER_NAME: &str = "empty_loop";
+pub const EMPTY_LOOP_DIAG_CODE: u8 = 7;
 
 pub enum LinterDiagCategory {
     Correctness,
@@ -71,6 +76,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 SWAP_SEQUENCE_DIAG_CODE,
                 Some(SWAP_SEQUENCE_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Correctness as u8,
+                EMPTY_LOOP_DIAG_CODE,
+                Some(EMPTY_LOOP_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -84,6 +95,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 constant_naming::ConstantNamingVisitor::visitor(ConstantNamingVisitor),
                 out_of_bounds_indexing::OutOfBoundsArrayIndexing::visitor(OutOfBoundsArrayIndexing),
                 almost_swapped::SwapSequence::visitor(SwapSequence),
+                empty_loop::EmptyLoop::visitor(EmptyLoop),
             ]
         }
     }
