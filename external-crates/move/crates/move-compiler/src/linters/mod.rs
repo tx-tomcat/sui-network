@@ -24,8 +24,8 @@ pub mod missing_key;
 pub mod needless_else;
 pub mod out_of_bounds_indexing;
 pub mod redundant_conditional;
+pub mod self_assignment;
 pub mod shift_overflow;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -49,8 +49,6 @@ pub enum LinterDiagCategory {
 
 pub const ALLOW_ATTR_CATEGORY: &str = "lint";
 pub const LINT_WARNING_PREFIX: &str = "Lint ";
-
-pub const LINTER_DEFAULT_DIAG_CODE: u8 = 1;
 
 pub const CONSTANT_NAMING_FILTER_NAME: &str = "constant_naming";
 pub const CONSTANT_NAMING_DIAG_CODE: u8 = 1;
@@ -81,6 +79,9 @@ pub const CONSECUTIVE_IFS_DIAG_CODE: u8 = 9;
 
 pub const OUT_OF_BOUNDS_INDEXING_FILTER_NAME: &str = "out_of_bounds_indexing";
 pub const OUT_OF_BOUNDS_INDEXING_DIAG_CODE: u8 = 10;
+
+pub const SELF_ASSIGNMENT_FILTER_NAME: &str = "self-assignment";
+pub const SELF_ASSIGNMENT_DIAG_CODE: u8 = 11;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -146,6 +147,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 SHILF_OVERFLOW_DIAG_CODE,
                 Some(SHILF_OVERFLOW_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Suspicious as u8,
+                SELF_ASSIGNMENT_DIAG_CODE,
+                Some(SELF_ASSIGNMENT_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -166,6 +173,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 ifs_same_cond::ConsecutiveIfs::visitor(ConsecutiveIfs),
                 abort_constant::AssertAbortNamedConstants::visitor(AssertAbortNamedConstants),
                 shift_overflow::ShiftOperationOverflow::visitor(ShiftOperationOverflow),
+                self_assignment::SelfAssignmentCheck::visitor(SelfAssignmentCheck),
             ]
         }
     }
