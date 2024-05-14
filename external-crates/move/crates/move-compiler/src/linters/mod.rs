@@ -10,7 +10,8 @@ use crate::{
         abort_constant::AssertAbortNamedConstants, almost_swapped::SwapSequence,
         bool_comparison::BoolComparison, collapsible_else_if::CollapsibleElseIf,
         constant_naming::ConstantNamingVisitor, double_comparisons::DoubleComparisonCheck,
-        empty_loop::EmptyLoop, excessive_nesting::ExcessiveNesting, ifs_same_cond::ConsecutiveIfs,
+        empty_loop::EmptyLoop, excessive_nesting::ExcessiveNesting,
+        freezing_capability::WarnFreezeCapability, ifs_same_cond::ConsecutiveIfs,
         missing_key::MissingKey, multiplication_overflow::MultiplicationOverflow,
         needless_else::EmptyElseBranch, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
         redundant_assert::AssertTrueFals, redundant_conditional::RedundantConditional,
@@ -27,6 +28,7 @@ pub mod constant_naming;
 pub mod double_comparisons;
 pub mod empty_loop;
 pub mod excessive_nesting;
+pub mod freezing_capability;
 pub mod ifs_same_cond;
 pub mod missing_key;
 pub mod multiplication_overflow;
@@ -118,6 +120,9 @@ pub const COLLAPSIBLE_ELSE_DIAG_CODE: u8 = 18;
 
 pub const REDUNDANT_REF_DEREF_FILTER_NAME: &str = "redundant_ref_deref";
 pub const REDUNDANT_REF_DEREF_DIAG_CODE: u8 = 19;
+
+pub const WARN_FREEZE_CAPABILITY_FILTER_NAME: &str = "freezing_capability";
+pub const WARN_FREEZE_CAPABILITY_DIAG_CODE: u8 = 20;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -237,6 +242,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 REDUNDANT_REF_DEREF_DIAG_CODE,
                 Some(REDUNDANT_REF_DEREF_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Suspicious as u8,
+                WARN_FREEZE_CAPABILITY_DIAG_CODE,
+                Some(WARN_FREEZE_CAPABILITY_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -266,6 +277,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 bool_comparison::BoolComparison::visitor(BoolComparison),
                 collapsible_else_if::CollapsibleElseIf::visitor(CollapsibleElseIf),
                 redundant_ref_deref::RedundantRefDerefVisitor::visitor(RedundantRefDerefVisitor),
+                freezing_capability::WarnFreezeCapability::visitor(WarnFreezeCapability),
             ]
         }
     }
