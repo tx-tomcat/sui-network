@@ -132,7 +132,6 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
             Some(PUBLIC_RANDOM_FILTER_NAME),
         ),
     ];
-
     (Some(ALLOW_ATTR_CATEGORY.into()), filters)
 }
 
