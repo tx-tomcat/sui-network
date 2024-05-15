@@ -1,0 +1,20 @@
+warning[Lint W00008]: Unnecessary swap sequence detected. Consider simplifying the code or using a temporary variable if swapping is intended.
+   ┌─ tests/linter/almost_swapped.move:10:9
+   │
+10 │         bar = foo;
+   │         ^^^^^^^^^ Unnecessary swap sequence detected. Consider simplifying the code or using a temporary variable if swapping is intended.
+   │
+   = This warning can be suppressed with '#[allow(lint(swap_sequence))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+error[E03009]: unbound variable
+   ┌─ tests/linter/almost_swapped.move:13:9
+   │
+13 │         temp = foo;
+   │         ^^^^ Invalid assignment. Unbound variable 'temp'
+
+error[E03009]: unbound variable
+   ┌─ tests/linter/almost_swapped.move:15:15
+   │
+15 │         bar = temp;
+   │               ^^^^ Unbound variable 'temp'
+

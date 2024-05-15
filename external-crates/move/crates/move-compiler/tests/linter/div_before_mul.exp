@@ -1,0 +1,16 @@
+warning[Lint W08001]: Division before multiplication may lead to amplified rounding errors. Consider changing the order of operations.
+  ┌─ tests/custom_rules/div_before_mul.move:8:35
+  │
+8 │         let result: u64 = (a / b) * c;
+  │                                   ^ Division before multiplication may lead to amplified rounding errors. Consider changing the order of operations.
+  │
+  = This warning can be suppressed with '#[allow(lint(div_before_mul))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
+warning[Lint W08001]: Division before multiplication may lead to amplified rounding errors. Consider changing the order of operations.
+   ┌─ tests/custom_rules/div_before_mul.move:30:36
+   │
+30 │         let result: u64 = ((a / b) * c) / d;
+   │                                    ^ Division before multiplication may lead to amplified rounding errors. Consider changing the order of operations.
+   │
+   = This warning can be suppressed with '#[allow(lint(div_before_mul))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
+
