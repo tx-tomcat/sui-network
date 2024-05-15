@@ -15,13 +15,13 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, DIV_BEFORE_MUL_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const DIV_BEFORE_MUL_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::DivisionBeforeMultiplication as u8,
-    LINTER_DEFAULT_DIAG_CODE,
+    LinterDiagnosticCategory::Suspicious as u8,
+    DIV_BEFORE_MUL_DIAG_CODE,
     "Division before multiplication may lead to amplified rounding errors. Consider changing the order of operations.",
 );
 
