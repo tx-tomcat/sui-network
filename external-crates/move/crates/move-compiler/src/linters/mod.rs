@@ -36,6 +36,7 @@ pub mod combinable_bool_conditions;
 pub mod constant_naming;
 pub mod div_before_mul;
 pub mod double_comparisons;
+pub mod empty_if_no_else;
 pub mod empty_loop;
 pub mod eq_op;
 pub mod excessive_nesting;
@@ -57,7 +58,6 @@ pub mod shift_overflow;
 pub mod too_many_arguments;
 pub mod unnecessary_mut_params;
 pub mod unnecessary_while_loop;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -174,6 +174,9 @@ pub const REDUNDANT_BOOLEAN_EXP_DIAG_CODE: u8 = 30;
 
 pub const EQUAL_OPERANDS_FILTER_NAME: &str = "equal_operands";
 pub const EQUAL_OPERANDS_DIAG_CODE: u8 = 31;
+
+pub const EMPTY_IF_NO_ELSE_FILTER_NAME: &str = "empty_if_no_else";
+pub const EMPTY_IF_NO_ELSE_DIAG_CODE: u8 = 32;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -365,6 +368,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 EQUAL_OPERANDS_DIAG_CODE,
                 Some(EQUAL_OPERANDS_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Complexity as u8,
+                EMPTY_IF_NO_ELSE_DIAG_CODE,
+                Some(EMPTY_IF_NO_ELSE_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -412,6 +421,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 ),
                 redundant_boolean_expressions::RedundantBooleanExp::visitor(RedundantBooleanExp),
                 eq_op::EqualOperandsCheck::visitor(EqualOperandsCheck),
+                empty_if_no_else::EmptyIfNoElse::visitor(EmptyIfNoElse),
             ]
         }
     }
