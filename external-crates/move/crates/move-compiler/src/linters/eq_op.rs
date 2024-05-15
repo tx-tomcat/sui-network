@@ -18,12 +18,12 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, EQUAL_OPERANDS_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, EQUAL_OPERANDS_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const EQUAL_OPERANDS_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Suspicious as u8,
+    LinterDiagnosticCategory::Suspicious as u8,
     EQUAL_OPERANDS_DIAG_CODE,
     "Equal operands detected in binary operation, which might indicate a logical error or redundancy.",
 );
