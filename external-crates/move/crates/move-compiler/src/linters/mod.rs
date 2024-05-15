@@ -29,6 +29,7 @@ pub mod almost_swapped;
 pub mod bool_comparison;
 pub mod collapsible_else_if;
 pub mod collapsible_nested_if;
+pub mod combinable_bool_conditions;
 pub mod constant_naming;
 pub mod div_before_mul;
 pub mod double_comparisons;
@@ -51,7 +52,6 @@ pub mod shift_overflow;
 pub mod too_many_arguments;
 pub mod unnecessary_mut_params;
 pub mod unnecessary_while_loop;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -156,6 +156,9 @@ pub const DIV_BEFORE_MUL_DIAG_CODE: u8 = 26;
 
 pub const MEANINGLESS_MATH_OP_FILTER_NAME: &str = "meaningless_math_op";
 pub const MEANINGLESS_MATH_OP_DIAG_CODE: u8 = 27;
+
+pub const COMBINABLE_BOOL_FILTER_NAME: &str = "combinable_bool_conditions";
+pub const COMBINABLE_BOOL_DIAG_CODE: u8 = 28;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -323,6 +326,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 MEANINGLESS_MATH_OP_DIAG_CODE,
                 Some(MEANINGLESS_MATH_OP_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Complexity as u8,
+                COMBINABLE_BOOL_DIAG_CODE,
+                Some(COMBINABLE_BOOL_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -364,6 +373,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 meaningless_math_operation::MeaninglessMathOperation::visitor(
                     MeaninglessMathOperation,
                 ),
+                combinable_bool_conditions::CombinableBool::visitor(CombinableBool),
             ]
         }
     }
