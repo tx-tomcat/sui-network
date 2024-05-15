@@ -16,13 +16,13 @@ use crate::{
 };
 use move_ir_types::location::Loc;
 
-use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, LINT_WARNING_PREFIX, MEANINGLESS_MATH_OP_DIAG_CODE};
 
 const MEANINGLESS_MATH_OP_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::MeaninglessMathOperation as u8,
-    LINTER_DEFAULT_DIAG_CODE,
+    LinterDiagnosticCategory::Complexity as u8,
+    MEANINGLESS_MATH_OP_DIAG_CODE,
     "Detected a meaningless math operation that has no effect.",
 );
 
