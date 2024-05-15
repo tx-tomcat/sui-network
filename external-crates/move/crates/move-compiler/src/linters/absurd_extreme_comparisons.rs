@@ -19,13 +19,13 @@ use crate::{
 use move_ir_types::location::Loc;
 use std::collections::{BTreeMap, VecDeque};
 
-use super::{LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, ABSURD_EXTREME_COMPARISON_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const LIKELY_MISTAKE_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Correctness as u8,
-    LINTER_DEFAULT_DIAG_CODE, // Replace with specific code if desired
+    LinterDiagnosticCategory::Correctness as u8,
+    ABSURD_EXTREME_COMPARISON_DIAG_CODE,
     "Expression suggests an unintended comparison",
 );
 
