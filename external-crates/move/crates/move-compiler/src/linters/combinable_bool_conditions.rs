@@ -17,13 +17,13 @@ use crate::{
     },
 };
 
-use super::{LinterDiagCategory, LINTER_COMB_BOOL, LINT_WARNING_PREFIX};
+use super::{LinterDiagnosticCategory, COMBINABLE_BOOL_DIAG_CODE, LINT_WARNING_PREFIX};
 
 const COMBINABLE_BOOL_COND_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::Readability as u8,
-    LINTER_COMB_BOOL,
+    LinterDiagnosticCategory::Complexity as u8,
+    COMBINABLE_BOOL_DIAG_CODE,
     "",
 );
 
