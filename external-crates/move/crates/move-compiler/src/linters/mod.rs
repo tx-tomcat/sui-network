@@ -10,11 +10,12 @@ use crate::{
         abort_constant::AssertAbortNamedConstants, almost_swapped::SwapSequence,
         bool_comparison::BoolComparison, collapsible_else_if::CollapsibleElseIf,
         collapsible_nested_if::CollapsibleNestedIf, constant_naming::ConstantNamingVisitor,
-        double_comparisons::DoubleComparisonCheck, empty_loop::EmptyLoop,
-        excessive_nesting::ExcessiveNesting, freezing_capability::WarnFreezeCapability,
-        ifs_same_cond::ConsecutiveIfs, impossible_comparisons::ImpossibleDoubleComparison,
-        missing_key::MissingKey, multiplication_overflow::MultiplicationOverflow,
-        needless_else::EmptyElseBranch, out_of_bounds_indexing::OutOfBoundsArrayIndexing,
+        div_before_mul::DivisionBeforeMultiplication, double_comparisons::DoubleComparisonCheck,
+        empty_loop::EmptyLoop, excessive_nesting::ExcessiveNesting,
+        freezing_capability::WarnFreezeCapability, ifs_same_cond::ConsecutiveIfs,
+        impossible_comparisons::ImpossibleDoubleComparison, missing_key::MissingKey,
+        multiplication_overflow::MultiplicationOverflow, needless_else::EmptyElseBranch,
+        out_of_bounds_indexing::OutOfBoundsArrayIndexing,
         public_mut_tx_context::RequireMutableTxContext, redundant_assert::AssertTrueFals,
         redundant_conditional::RedundantConditional, redundant_ref_deref::RedundantRefDerefVisitor,
         self_assignment::SelfAssignmentCheck, shift_overflow::ShiftOperationOverflow,
@@ -50,6 +51,8 @@ pub mod unnecessary_while_loop;
 pub mod impossible_comparisons;
 
 pub mod unnecessary_mut_params;
+
+pub mod div_before_mul;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -148,6 +151,9 @@ pub const IMPOSSIBLE_COMPARISON_DIAG_CODE: u8 = 24;
 
 pub const UNUSED_MUT_PARAMS_FILTER_NAME: &str = "unused_mut_params";
 pub const UNUSED_MUT_PARAMS_DIAG_CODE: u8 = 25;
+
+pub const DIV_BEFORE_MUL_FILTER_NAME: &str = "div_before_mul";
+pub const DIV_BEFORE_MUL_DIAG_CODE: u8 = 26;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -303,6 +309,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 UNUSED_MUT_PARAMS_DIAG_CODE,
                 Some(UNUSED_MUT_PARAMS_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Suspicious as u8,
+                DIV_BEFORE_MUL_DIAG_CODE,
+                Some(DIV_BEFORE_MUL_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -340,6 +352,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                     ImpossibleDoubleComparison,
                 ),
                 unnecessary_mut_params::UnusedMutableParamsCheck::visitor(UnusedMutableParamsCheck),
+                div_before_mul::DivisionBeforeMultiplication::visitor(DivisionBeforeMultiplication),
             ]
         }
     }
