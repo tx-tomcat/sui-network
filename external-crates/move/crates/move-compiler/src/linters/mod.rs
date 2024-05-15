@@ -37,6 +37,7 @@ pub mod constant_naming;
 pub mod div_before_mul;
 pub mod double_comparisons;
 pub mod empty_loop;
+pub mod eq_op;
 pub mod excessive_nesting;
 pub mod freezing_capability;
 pub mod ifs_same_cond;
@@ -170,6 +171,9 @@ pub const ABSURD_EXTREME_COMPARISON_DIAG_CODE: u8 = 29;
 
 pub const REDUNDANT_BOOLEAN_EXP_FILTER_NAME: &str = "redundant_boolean_expressions";
 pub const REDUNDANT_BOOLEAN_EXP_DIAG_CODE: u8 = 30;
+
+pub const EQUAL_OPERANDS_FILTER_NAME: &str = "equal_operands";
+pub const EQUAL_OPERANDS_DIAG_CODE: u8 = 31;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -355,6 +359,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 LINTER_DEFAULT_DIAG_CODE,
                 Some(REDUNDANT_BOOLEAN_EXP_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Suspicious as u8,
+                EQUAL_OPERANDS_DIAG_CODE,
+                Some(EQUAL_OPERANDS_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -401,6 +411,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                     LikelyComparisonMistake,
                 ),
                 redundant_boolean_expressions::RedundantBooleanExp::visitor(RedundantBooleanExp),
+                eq_op::EqualOperandsCheck::visitor(EqualOperandsCheck),
             ]
         }
     }
