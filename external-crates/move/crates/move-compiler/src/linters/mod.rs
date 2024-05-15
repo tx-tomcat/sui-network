@@ -7,13 +7,15 @@ use crate::{
     command_line::compiler::Visitor,
     diagnostics::codes::WarningFilter,
     linters::{
-        abort_constant::AssertAbortNamedConstants, almost_swapped::SwapSequence,
+        abort_constant::AssertAbortNamedConstants,
+        absurd_extreme_comparisons::LikelyComparisonMistake, almost_swapped::SwapSequence,
         bool_comparison::BoolComparison, collapsible_else_if::CollapsibleElseIf,
-        collapsible_nested_if::CollapsibleNestedIf, constant_naming::ConstantNamingVisitor,
-        div_before_mul::DivisionBeforeMultiplication, double_comparisons::DoubleComparisonCheck,
-        empty_loop::EmptyLoop, excessive_nesting::ExcessiveNesting,
-        freezing_capability::WarnFreezeCapability, ifs_same_cond::ConsecutiveIfs,
-        impossible_comparisons::ImpossibleDoubleComparison, missing_key::MissingKey,
+        collapsible_nested_if::CollapsibleNestedIf, combinable_bool_conditions::CombinableBool,
+        constant_naming::ConstantNamingVisitor, div_before_mul::DivisionBeforeMultiplication,
+        double_comparisons::DoubleComparisonCheck, empty_loop::EmptyLoop,
+        excessive_nesting::ExcessiveNesting, freezing_capability::WarnFreezeCapability,
+        ifs_same_cond::ConsecutiveIfs, impossible_comparisons::ImpossibleDoubleComparison,
+        meaningless_math_operation::MeaninglessMathOperation, missing_key::MissingKey,
         multiplication_overflow::MultiplicationOverflow, needless_else::EmptyElseBranch,
         out_of_bounds_indexing::OutOfBoundsArrayIndexing,
         public_mut_tx_context::RequireMutableTxContext, redundant_assert::AssertTrueFals,
@@ -25,6 +27,7 @@ use crate::{
     typing::visitor::TypingVisitor,
 };
 pub mod abort_constant;
+pub mod absurd_extreme_comparisons;
 pub mod almost_swapped;
 pub mod bool_comparison;
 pub mod collapsible_else_if;
@@ -52,6 +55,7 @@ pub mod shift_overflow;
 pub mod too_many_arguments;
 pub mod unnecessary_mut_params;
 pub mod unnecessary_while_loop;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LintLevel {
     // No linters
@@ -159,6 +163,9 @@ pub const MEANINGLESS_MATH_OP_DIAG_CODE: u8 = 27;
 
 pub const COMBINABLE_BOOL_FILTER_NAME: &str = "combinable_bool_conditions";
 pub const COMBINABLE_BOOL_DIAG_CODE: u8 = 28;
+
+pub const ABSURD_EXTREME_COMPARISON_FILTER_NAME: &str = "absurd_extreme_comparisons";
+pub const ABSURD_EXTREME_COMPARISON_DIAG_CODE: u8 = 29;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -332,6 +339,12 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
                 COMBINABLE_BOOL_DIAG_CODE,
                 Some(COMBINABLE_BOOL_FILTER_NAME),
             ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagCategory::Correctness as u8,
+                ABSURD_EXTREME_COMPARISON_FILTER_NAME,
+                Some(ABSURD_EXTREME_COMPARISON_FILTER_NAME),
+            ),
         ],
     )
 }
@@ -374,6 +387,9 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                     MeaninglessMathOperation,
                 ),
                 combinable_bool_conditions::CombinableBool::visitor(CombinableBool),
+                absurd_extreme_comparisons::LikelyComparisonMistake::visitor(
+                    LikelyComparisonMistake,
+                ),
             ]
         }
     }
