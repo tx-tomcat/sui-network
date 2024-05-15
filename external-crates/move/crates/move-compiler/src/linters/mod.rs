@@ -48,6 +48,7 @@ pub mod needless_else;
 pub mod out_of_bounds_indexing;
 pub mod public_mut_tx_context;
 pub mod redundant_assert;
+pub mod redundant_boolean_expressions;
 pub mod redundant_conditional;
 pub mod redundant_ref_deref;
 pub mod self_assignment;
@@ -166,6 +167,9 @@ pub const COMBINABLE_BOOL_DIAG_CODE: u8 = 28;
 
 pub const ABSURD_EXTREME_COMPARISON_FILTER_NAME: &str = "absurd_extreme_comparisons";
 pub const ABSURD_EXTREME_COMPARISON_DIAG_CODE: u8 = 29;
+
+pub const REDUNDANT_BOOLEAN_EXP_FILTER_NAME: &str = "redundant_boolean_expressions";
+pub const REDUNDANT_BOOLEAN_EXP_DIAG_CODE: u8 = 30;
 
 pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
     (
@@ -341,9 +345,15 @@ pub fn known_filters() -> (Option<Symbol>, Vec<WarningFilter>) {
             ),
             WarningFilter::code(
                 Some(LINT_WARNING_PREFIX),
-                LinterDiagCategory::Correctness as u8,
+                LinterDiagnosticCategory::Correctness as u8,
                 ABSURD_EXTREME_COMPARISON_FILTER_NAME,
                 Some(ABSURD_EXTREME_COMPARISON_FILTER_NAME),
+            ),
+            WarningFilter::code(
+                Some(LINT_WARNING_PREFIX),
+                LinterDiagnosticCategory::Complexity as u8,
+                LINTER_DEFAULT_DIAG_CODE,
+                Some(REDUNDANT_BOOLEAN_EXP_FILTER_NAME),
             ),
         ],
     )
@@ -390,6 +400,7 @@ pub fn linter_visitors(level: LintLevel) -> Vec<Visitor> {
                 absurd_extreme_comparisons::LikelyComparisonMistake::visitor(
                     LikelyComparisonMistake,
                 ),
+                redundant_boolean_expressions::RedundantBooleanExp::visitor(RedundantBooleanExp),
             ]
         }
     }
