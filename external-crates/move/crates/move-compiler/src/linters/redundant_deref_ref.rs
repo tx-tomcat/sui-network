@@ -1,3 +1,6 @@
+// Copyright (c) The Move Contributors
+// SPDX-License-Identifier: Apache-2.0
+
 //! Implements lint rule for Move IR code to detect redundant dereference of a reference.
 //! It identifies patterns where a dereference (`*`) is immediately followed by a borrow (`&` or `&mut`).
 //! The lint aims to simplify expressions by removing unnecessary dereference-borrow sequences.
