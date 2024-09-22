@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["balances","flashloans","order_fills","order_updates","pool_prices","progress_store","proposals","rebates","stakes","sui_error_transactions","trade_params_update","votes"]};
